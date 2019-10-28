@@ -1,4 +1,3 @@
-
 n, k = map(int, input().split())
 d = [0] * k
 for i in range(k):
