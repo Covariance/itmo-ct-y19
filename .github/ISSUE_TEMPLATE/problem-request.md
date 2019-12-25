@@ -1,6 +1,6 @@
 ---
 name: Problem request
-about: Request for solution of hoework problem
+about: Request for solution of homework problem
 title: ''
 labels: ''
 assignees: ''
