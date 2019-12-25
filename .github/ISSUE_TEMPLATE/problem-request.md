@@ -1,7 +1,7 @@
 ---
 name: Problem request
 about: Request for solution of homework problem
-title: ''
+title: "[HMW]"
 labels: ''
 assignees: ''
 
