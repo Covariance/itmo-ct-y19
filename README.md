@@ -1,4 +1,4 @@
-# dm_1term
+# itmo_dm_1term
 Solutions of contests for first term of **Discrete Mathematics** course, read by Andrey Stankevich in CT department of ITMO university. 
 
 ## Labs
