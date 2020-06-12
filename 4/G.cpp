@@ -4,6 +4,12 @@
 
 #include <bits/stdc++.h>
 
+struct pair_hash {
+    inline std::size_t operator()(const std::pair<int, int> &v) const {
+        return v.first * 31 + v.second;
+    }
+};
+
 class DKA {
 private:
     int n;
@@ -133,13 +139,13 @@ private:
         return true;
     }
 
-    int _from_by_way(int from, char by) const {
+    [[nodiscard]] int _from_by_way(int from, char by) const {
         if (from == -1) return -1;
         if (edges[from].find(by) == edges[from].end()) return -1;
         return edges[from].find(by)->second;
     }
 
-    bool _terminal(int v) const {
+    [[nodiscard]] bool _terminal(int v) const {
         return (v != -1) && (this->terminal[v]);
     }
 
@@ -206,21 +212,33 @@ public:
     }
 
     bool operator==(const DKA &that) {
+        std::pair<int, int> tmp;
         std::queue<std::pair<int, int>> bfs;
-        std::vector<std::vector<bool>> was(this->n + 1, std::vector<bool>(that.n + 1, false));
+        std::unordered_set<std::pair<int, int>, pair_hash> was;
+        was.insert({0, 0});
         bfs.push({0, 0});
-        was[1][1] = true;
         while (!bfs.empty()) {
             std::pair<int, int> cur = bfs.front();
             bfs.pop();
             if (this->_terminal(cur.first) != that._terminal(cur.second)) {
                 return false;
             }
-            for (int i = 0; i < 26; i++) {
-                std::pair<int, int> tmp = {this->_from_by_way(cur.first, (char) ('a' + i)), that._from_by_way(cur.second, (char) ('a' + i))};
-                if (!was[tmp.first + 1][tmp.second + 1]) {
-                    was[tmp.first + 1][tmp.second + 1] = true;
-                    bfs.push(tmp);
+            if (cur.first != -1) {
+                for (auto edge : this->edges[cur.first]) {
+                    tmp = {this->_from_by_way(cur.first, edge.first), that._from_by_way(cur.second, edge.first)};
+                    if (was.find(tmp) == was.end()) {
+                        was.insert(tmp);
+                        bfs.push(tmp);
+                    }
+                }
+            }
+            if (cur.second != -1) {
+                for (auto edge : that.edges[cur.second]) {
+                    tmp = {this->_from_by_way(cur.first, edge.first), that._from_by_way(cur.second, edge.first)};
+                    if (was.find(tmp) == was.end()) {
+                        was.insert(tmp);
+                        bfs.push(tmp);
+                    }
                 }
             }
         }
