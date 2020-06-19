@@ -62,9 +62,9 @@ struct vector {
   iterator erase(const_iterator first, const_iterator last); // O(N) weak
 
 private:
-  T* data_;
   size_t size_;
   size_t capacity_;
+  T* data_;
 };
 
 template<typename T>
