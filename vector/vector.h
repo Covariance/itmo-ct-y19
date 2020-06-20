@@ -9,8 +9,6 @@
 #include <cstring>
 #include <utility>
 
-#include <iostream>
-
 template<typename T>
 class vector {
 private:
@@ -39,6 +37,7 @@ private:
 
     while (!empty()) pop_back();
     std::swap(data_, new_data);
+
     operator delete(new_data);
 
     size_ = copy_till;
@@ -46,8 +45,8 @@ private:
   }
 
 public:
-  typedef T* iterator;
-  typedef T const* const_iterator;
+  using iterator = T*;
+  using const_iterator = T const*;
 
   // O(1) nothrow
   vector()
