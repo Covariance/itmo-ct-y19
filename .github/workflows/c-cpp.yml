@@ -1,0 +1,78 @@
+name: C/C++ CI
+
+on:
+  pull_request:
+    branches:
+      - master
+      - asm
+      - vector
+      - bigint
+      - bigint-opt
+
+jobs:
+  build:
+    
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: dependencies
+      run: sudo apt install nasm binutils gcc gdb cmake libgmp-dev valgrind
+    - if: ${{ github.head_ref == 'asm' }}
+      name: asm-tests
+      run: |
+        cd asm
+        mkdir build
+        cd build
+        cmake ..
+        make
+        cd ../tests
+        ./test_256.sh
+        
+    - if: ${{ github.head_ref == 'vector' }}
+      name: vector-tests-release
+      run: |
+        cd vector
+        ../tests-internal/tests-build.sh Release vector_testing
+    - if: ${{ github.head_ref == 'vector' }}
+      name: vector-tests-debug
+      run: |
+        cd vector
+        ../tests-internal/tests-build.sh Debug vector_testing  
+    - if: ${{ github.head_ref == 'vector' }}
+      name: vector-tests-valgrind
+      run: |
+        cd vector
+        ../tests-internal/tests-valgrind.sh vector_testing
+    
+    - if: ${{ github.head_ref == 'bigint' }}
+      name: bigint-tests-release
+      run: |
+        cd bigint
+        ../tests-internal/tests-build.sh Release big_integer_testing
+    - if: ${{ github.head_ref == 'bigint' }}
+      name: bigint-tests-debug
+      run: |
+        cd bigint
+        ../tests-internal/tests-build.sh Debug big_integer_testing  
+    - if: ${{ github.head_ref == 'bigint' }}
+      name: bigint-tests-valgrind
+      run: |
+        cd bigint
+        ../tests-internal/tests-valgrind.sh big_integer_testing 
+    
+    - if: ${{ github.head_ref == 'bigint-opt' }}
+      name: bigint-opt-tests-release
+      run: |
+        cd bigint-optimized
+        ../tests-internal/tests-build.sh Release big_integer_testing
+    - if: ${{ github.head_ref == 'bigint-opt' }}
+      name: bigint-opt-tests-debug
+      run: |
+        cd bigint-optimized
+        ../tests-internal/tests-build.sh Debug big_integer_testing  
+    - if: ${{ github.head_ref == 'bigint-opt' }}
+      name: bigint-opt-tests-valgrind
+      run: |
+        cd bigint-optimized
+        ../tests-internal/tests-valgrind.sh big_integer_testing 
