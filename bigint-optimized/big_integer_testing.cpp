@@ -761,3 +761,18 @@ TEST(correctness_random, bit_shifts) {
     EXPECT_EQ(to_string(a >> shift), to_string(R >> shift));
   }
 }
+
+// TODO: extend due to idea
+TEST(correctness_twos_complement, simple) {
+  std::string a = "-36893488147419103232"; // -(1 << 65)
+  std::string b = "147573952589676412928"; //  (1 << 67)
+
+  big_integer_gmp gmp_a(a), gmp_b(b);
+  big_integer your_a(a), your_b(b);
+
+  big_integer_gmp gmp_ans = gmp_a | gmp_b;
+  big_integer your_ans = your_a | your_b;
+
+  EXPECT_EQ(to_string(gmp_ans), to_string(your_ans));
+}
+
