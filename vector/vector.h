@@ -147,7 +147,6 @@ public:
       capacity_ = 1;
       data_ = static_cast<T*>(operator new(capacity_ * sizeof(T)));
     }
-
     if (size_ == capacity_) {
       T written = T(value);
       _update_size(2 * capacity_);
