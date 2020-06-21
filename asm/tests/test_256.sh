@@ -15,7 +15,7 @@ do
             echo "Expected $line."
             echo "Found $result"
             echo "You failed on test $number"
-            exit
+            exit 1
         fi
     done
 done
