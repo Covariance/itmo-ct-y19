@@ -468,3 +468,16 @@ TEST(correctness, empty_storage_shrink_to_fit) {
   a.shrink_to_fit();
   EXPECT_EQ(nullptr, a.data());
 }
+
+// This test actually checks memory leak in pair with @valgrind
+TEST(correctness, copy_throw) {
+  vector<element<size_t> > a;
+  a.reserve(10);
+  size_t n = a.capacity();
+  for (size_t i = 0; i != n; ++i) a.push_back(i);
+  element<size_t>::set_throw_countdown(7);
+  EXPECT_THROW({
+      vector<element<size_t>> b(a);
+  }, std::runtime_error);
+}
+
