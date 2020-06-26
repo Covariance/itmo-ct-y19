@@ -481,3 +481,22 @@ TEST(correctness, copy_throw) {
   }, std::runtime_error);
 }
 
+TEST(correctness, iter_types) {
+  using el_t = element<size_t>;
+  using vec_t = vector<el_t>;
+  bool test1 = std::is_same<el_t *, typename vec_t::iterator>::value;
+  bool test2 = std::is_same<el_t const *, typename vec_t::const_iterator>::value;
+  EXPECT_TRUE(test1);
+  EXPECT_TRUE(test2);
+}
+
+// Expect no extra allocation
+TEST(correctness, ctor_alloc) {
+  vector<element<size_t> > a;
+  a.reserve(10);
+  a.push_back(5);
+
+  auto b = a;
+  EXPECT_EQ(1, b.capacity());
+}
+
