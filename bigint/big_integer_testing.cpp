@@ -80,6 +80,7 @@ TEST(correctness, comparisons) {
   big_integer a = 100;
   big_integer b = 100;
   big_integer c = 200;
+  big_integer d = -1;
 
   EXPECT_TRUE(a == b);
   EXPECT_TRUE(a != c);
@@ -89,6 +90,7 @@ TEST(correctness, comparisons) {
   EXPECT_TRUE(a <= b);
   EXPECT_TRUE(a <= c);
   EXPECT_TRUE(c >= a);
+  EXPECT_TRUE(d != 0);
 }
 
 TEST(correctness, compare_zero_and_minus_zero) {
@@ -544,6 +546,15 @@ TEST(correctness, string_conv) {
   EXPECT_EQ("0", to_string(big_integer("0")));
   EXPECT_EQ("0", to_string(big_integer("-0")));
   EXPECT_EQ("-1000000000000000", to_string(big_integer("-1000000000000000")));
+
+  big_integer lim = std::numeric_limits<int32_t>::max();
+  EXPECT_EQ("2147483647", to_string(lim));
+  lim++;
+  EXPECT_EQ("2147483648", to_string(lim));
+  lim = std::numeric_limits<int32_t>::min();
+  EXPECT_EQ("-2147483648", to_string(lim));
+  lim--;
+  EXPECT_EQ("-2147483649", to_string(lim));
 }
 
 namespace {
