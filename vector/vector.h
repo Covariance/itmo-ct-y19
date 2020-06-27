@@ -21,9 +21,13 @@ private:
     T* new_data = static_cast<T*>(operator new(initial_size * sizeof(T)));
 
     try {
-      for (i = 0; i < copy_till; ++i) new(new_data + i) T(data[i]);
+      for (i = 0; i < copy_till; ++i) {
+        new(new_data + i) T(data[i]);
+      }
     } catch (...) {
-      while (i--) new_data[i].~T();
+      while (i--) {
+        new_data[i].~T();
+      }
       operator delete(new_data);
       throw;
     }
@@ -35,7 +39,9 @@ private:
     size_t copy_till = (n > size_) ? size_ : n;
     T* new_data = _safe_copy(this->data_, copy_till, n);
 
-    while (!empty()) pop_back();
+    while (!empty()) {
+      pop_back();
+    }
     std::swap(data_, new_data);
 
     operator delete(new_data);
@@ -50,15 +56,15 @@ public:
 
   // O(1) nothrow
   vector()
-    : size_(0),
-      capacity_(0),
-      data_(nullptr) {}
+    : size_(0)
+    , capacity_(0)
+    , data_(nullptr) {}
 
   // O(N) strong
   vector(vector<T> const& rhs)
-    : size_(rhs.size_),
-      capacity_(rhs.size_),
-      data_(nullptr) {
+    : size_(rhs.size_)
+    , capacity_(rhs.size_)
+    , data_(nullptr) {
     if (size_ != 0) {
       T* new_data = _safe_copy(rhs.data_, rhs.size_, rhs.size_);
       data_ = new_data;
@@ -143,13 +149,9 @@ public:
 
   // O(1)* strong
   void push_back(T const& value) {
-    if (capacity_ == 0) {
-      capacity_ = 1;
-      data_ = static_cast<T*>(operator new(capacity_ * sizeof(T)));
-    }
     if (size_ == capacity_) {
-      T written = T(value);
-      _update_size(2 * capacity_);
+      T written(value);
+      _update_size(capacity_ == 0 ? 1 : 2 * capacity_);
       new(data_ + size_) T(written);
     } else {
       new(data_ + size_) T(value);
@@ -197,7 +199,9 @@ public:
 
   // O(N) nothrow
   void clear() {
-    while (!empty()) pop_back();
+    while (!empty()) {
+      pop_back();
+    }
   }
 
   // O(1) nothrow
@@ -278,7 +282,9 @@ public:
       std::swap(data_[end - delta], data_[end]);
       end++;
     }
-    while (delta--) pop_back();
+    while (delta--) {
+      pop_back();
+    }
 
     return begin() + (first - begin());
   }
