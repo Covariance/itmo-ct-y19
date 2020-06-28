@@ -16,7 +16,7 @@ _start:
                 lea	        r13, [rsp + 2 * 256 * 8]
 
 
-                mov             rcx, 256
+                mov             rcx, 128
                 ; read first multiplier
                 lea             rdi, [rsp + 256 * 8]
                 call            read_long
@@ -25,6 +25,7 @@ _start:
                 mov             rdi, rsp
                 call            read_long
 
+                mov             rcx, 256
                 lea             rsi, [rsp + 256 * 8]
                 call            mul_long_long
 
