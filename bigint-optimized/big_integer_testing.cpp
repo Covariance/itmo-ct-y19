@@ -670,7 +670,7 @@ TEST(correctness, div_randomized) {
   }
 }
 
-// MY RANDOM TESTS
+// y2019 tests
 
 TEST(correctness_random, cmp) {
   std::default_random_engine rng(42);
@@ -725,17 +725,33 @@ TEST(correctness_random, mul) {
 }
 
 TEST(correctness_random, div) {
-  std::default_random_engine rng(254);
+  std::default_random_engine rng(322);
   for (size_t itn = 0; itn != number_of_iterations; ++itn) {
     big_integer_gmp a, b;
     a.random(max_size, rng);
-    b.random(max_size, rng);
+    b.random(max_size / 2, rng);
     big_integer_gmp c = a / b;
     big_integer R = big_integer(to_string(a)) / big_integer(to_string(b));
     EXPECT_EQ(to_string(c), to_string(R));
 
     c = b / a;
     R = big_integer(to_string(b)) / big_integer(to_string(a));
+    EXPECT_EQ(to_string(c), to_string(R));
+  }
+}
+
+TEST(correctness_random, mod) {
+  std::default_random_engine rng(322);
+  for (size_t itn = 0; itn != number_of_iterations; ++itn) {
+    big_integer_gmp a, b;
+    a.random(max_size, rng);
+    b.random(max_size / 2, rng);
+    big_integer_gmp c = a % b;
+    big_integer R = big_integer(to_string(a)) % big_integer(to_string(b));
+    EXPECT_EQ(to_string(c), to_string(R));
+
+    c = b % a;
+    R = big_integer(to_string(b)) % big_integer(to_string(a));
     EXPECT_EQ(to_string(c), to_string(R));
   }
 }

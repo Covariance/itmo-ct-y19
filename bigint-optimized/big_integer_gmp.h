@@ -16,8 +16,11 @@ struct big_integer_gmp {
     gmp_randstate_t state;
     gmp_randinit_mt(state);
     gmp_randseed_ui(state, rng());
-    mpz_urandomb(mpz, state, sz);
+    mpz_urandomb(mpz, state, sz + 1);
     gmp_randclear(state);
+    big_integer_gmp shift(1);
+    shift <<= sz;
+    *this -= shift;
     return *this;
   }
 
