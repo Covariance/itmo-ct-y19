@@ -7,21 +7,27 @@
 
                 global          _start
 _start:
-                sub             rsp, 4 * 256 * 8
+                sub             rsp, 3 * 256 * 8
+
+                ; set result of mul in zeros
                 lea	        rdi, [rsp + 2 * 256 * 8]
-                mov	        rcx, 2 * 256
+                mov	        rcx, 256
                 call	        set_zero
                 lea	        r13, [rsp + 2 * 256 * 8]
 
-                lea             rdi, [rsp + 256 * 8]
+
                 mov             rcx, 256
+                ; read first multiplier
+                lea             rdi, [rsp + 256 * 8]
                 call            read_long
+
+                ; read second multiplier
                 mov             rdi, rsp
                 call            read_long
+
                 lea             rsi, [rsp + 256 * 8]
                 call            mul_long_long
 
-                mov             rcx, 2 * 256
                 call            write_long
 
                 mov             al, 0x0a
