@@ -786,3 +786,16 @@ TEST(correctness_twos_complement, simple) {
 
   EXPECT_EQ(to_string(gmp_ans), to_string(your_ans));
 }
+
+TEST(correctness_twos_complement, all_ones) {
+  std::string a = "-18446744073709551615"; // -((1 << 64) - 1)
+  std::string b = "147573952589676412929"; // (1 << 67)
+
+  big_integer_gmp gmp_a(a), gmp_b(b);
+  big_integer your_a(a), your_b(b);
+
+  big_integer_gmp gmp_ans = gmp_a & gmp_b;
+  big_integer your_ans = your_a & your_b;
+
+  EXPECT_EQ(to_string(gmp_ans), to_string(your_ans));
+}
