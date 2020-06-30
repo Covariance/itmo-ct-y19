@@ -4,14 +4,17 @@
 Файл с умножением назовите `mul.asm`, а вычитание `sub.asm`. Если хотите собрать код без него, то закомментируйте в `CMakeLists.txt` строчки, связанные с ними
 
 Инструкция по сборке:
-```
+```shell
 mkdir build
 cd build
 cmake ..
 make
 ```
 Инструкция по тестированиию:
-```
+```shell
 cd tests
-./test_256.sh
+# Тестируем mul
+EXEC=mul ./test.sh
+# Тестируем sub
+EXEC=sub ./test.sh
 ```
