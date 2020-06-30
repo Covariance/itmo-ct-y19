@@ -1,34 +1,36 @@
-; r9  is i-counter
-; r10 is j-counter
-; r11 is carry
-; r12 is tmp
-; r13 is result
+                %define         carry r15
+                %define         index r14
+                %define         result r13
+                %define         length r12
+                %define         i r11
+                %define         j r10
                 section         .text
 
                 global          _start
 _start:
-                sub             rsp, 3 * 256 * 8
+                sub             rsp, 256 * 8 + 2 * 128 * 8
 
                 ; set result of mul in zeros
-                lea	        rdi, [rsp + 2 * 256 * 8]
+                lea	        rdi, [rsp + 2 * 128 * 8]
                 mov	        rcx, 256
                 call	        set_zero
-                lea	        r13, [rsp + 2 * 256 * 8]
+                lea	        r13, [rsp + 2 * 128 * 8]
 
 
-                mov             rcx, 128
                 ; read first multiplier
-                lea             rdi, [rsp + 256 * 8]
+                mov             rcx, 128
+                lea             rdi, [rsp + 128 * 8]
                 call            read_long
 
                 ; read second multiplier
                 mov             rdi, rsp
                 call            read_long
 
-                mov             rcx, 256
-                lea             rsi, [rsp + 256 * 8]
+                lea             rsi, [rsp + 128 * 8]
                 call            mul_long_long
 
+                mov             rcx, 256
+                mov             rdi, r13
                 call            write_long
 
                 mov             al, 0x0a
@@ -41,41 +43,48 @@ _start:
 ;    rsi -- address of multiplier #2 (long number)
 ;    rcx -- length of long numbers in qwords
 ; result:
-;    mul is written to rdi
+;    mul is written to result
 mul_long_long:
-                push	        rcx
-                mov             r9, 0
-; outer cycle
+                mov             rax, 8
+                mul             rcx
+
+                mov             length, rax
+                mov             i, 0
+; for (int i = 0; i < length; i += 8) {
 .first_num:
-                mov             r11, 0
-                mov             r10, 0
-                mov             rbp, rcx
-                clc
-; inner cycle
+                mov             carry, 0
+                mov             index, result
+                add             index, i
+                push            rdi
+                mov             j, rcx
+; for (int j = rcx, j >= 0; j--) {
 .second_num:
-                mov	        rax, [rsi + r10]
-                mov	        rbx, [rdi + r9]
+                mov             rax, [rdi]
+                mov             rbx, [rsi]
+                mul             rbx
 
-                mul	        rbx
-
-                add             rax, r11
+                add             rax, carry
                 adc             rdx, 0
-                lea             r12, [r9 + r10]
-                add             [r13 + r12], rax
-                adc             rdx, 0
-                mov             r11, rdx
 
-                add             r10, 8
-                dec             rbp
+                add             [index], rax
+                adc             rdx, 0
+
+                mov             carry, rdx
+                adc             rdx, 0
+
+                adc             index, 8
+                adc             rdi, 8
+                dec             j
                 jnz             .second_num
+; }
+                pop             rdi
+                adc             rsi, 8
+                adc             i, 8
 
-                add             r9, 8
-                dec             rcx
-                jnz             .first_num
-
-                pop             rcx
-
-                mov             rdi, r13
+                add             [index], carry
+                cmp             i, length
+                jb              .first_num
+; }
                 ret
 
 
