@@ -4,32 +4,30 @@
                 %define         length r12
                 %define         i r11
                 %define         j r10
+                %define         sizeof 8
+                %define         long_length 128
                 section         .text
 
                 global          _start
 _start:
-                sub             rsp, 256 * 8 + 2 * 128 * 8
+                sub             rsp, 4 * long_length * sizeof
 
-                ; set result of mul in zeros
-                lea	        rdi, [rsp + 2 * 128 * 8]
-                mov	        rcx, 256
-                call	        set_zero
-                lea	        r13, [rsp + 2 * 128 * 8]
-
+                ; set result pointer
+                lea	        r13, [rsp + 2 * long_length * sizeof]
 
                 ; read first multiplier
-                mov             rcx, 128
-                lea             rdi, [rsp + 128 * 8]
+                mov             rcx, long_length
+                lea             rdi, [rsp + long_length * sizeof]
                 call            read_long
 
                 ; read second multiplier
                 mov             rdi, rsp
                 call            read_long
 
-                lea             rsi, [rsp + 128 * 8]
+                lea             rsi, [rsp + long_length * sizeof]
                 call            mul_long_long
 
-                mov             rcx, 256
+                mov             rcx, 2 * long_length
                 mov             rdi, r13
                 call            write_long
 
@@ -41,18 +39,14 @@ _start:
 ; multiplies two long numbers
 ;    rdi -- address of multiplier #1 (long number)
 ;    rsi -- address of multiplier #2 (long number)
-;    rcx -- length of long numbers in qwords
 ; result:
 ;    mul is written to result
 mul_long_long:
-                mov             rax, 8
-                mul             rcx
-
-                mov             length, rax
-                mov             i, 0
+                lea             length, [long_length * sizeof]
+                xor             i, i
 ; for (int i = 0; i < length; i += 8) {
 .first_num:
-                mov             carry, 0
+                xor             carry, carry
                 mov             index, result
                 add             index, i
                 push            rdi
@@ -72,14 +66,14 @@ mul_long_long:
                 mov             carry, rdx
                 adc             rdx, 0
 
-                adc             index, 8
-                adc             rdi, 8
+                add             index, sizeof
+                add             rdi, sizeof
                 dec             j
                 jnz             .second_num
 ; }
                 pop             rdi
-                adc             rsi, 8
-                adc             i, 8
+                add             rsi, sizeof
+                add             i, sizeof
 
                 add             [index], carry
                 cmp             i, length
