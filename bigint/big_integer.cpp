@@ -67,7 +67,7 @@ big_integer::big_integer()
   , negative(false) {}
 
 big_integer::big_integer(int x)
-  : data(1, (uint32_t) std::abs((int64_t) x))
+  : data(1, static_cast<uint32_t>(std::abs(x)))
   , negative(x < 0) {}
 
 big_integer::big_integer(uint32_t x)
