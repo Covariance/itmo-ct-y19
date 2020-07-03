@@ -14,8 +14,8 @@ class big_integer {
   std::vector<uint32_t> data;
   bool negative;
 
+// region inners
   size_t size() const;
-  void resize(size_t);
   big_integer convert(size_t) const;
   void normalize();
   bool zero() const;
@@ -23,6 +23,7 @@ class big_integer {
                              const std::function<uint32_t(uint32_t, uint32_t)>& op);
   friend void difference(big_integer& a, big_integer const& b, size_t index);
   friend inline big_integer shortdiv(big_integer const& a, uint32_t b);
+// endregion
 
 public:
 // region constructors
@@ -41,23 +42,6 @@ public:
 // region support fucntions
   void swap(big_integer&);
   friend std::string to_string(big_integer const&);
-// endregion
-
-// region usual equal operators
-  big_integer& operator=(big_integer const&);
-  big_integer& operator+=(big_integer const&);
-  big_integer& operator-=(big_integer const&);
-  big_integer& operator*=(big_integer const&);
-  big_integer& operator/=(big_integer const&);
-  big_integer& operator%=(big_integer const&);
-// endregion
-
-// region bitwise equal operators
-  big_integer& operator&=(big_integer const&);
-  big_integer& operator|=(big_integer const&);
-  big_integer& operator^=(big_integer const&);
-  big_integer& operator<<=(int);
-  big_integer& operator>>=(int);
 // endregion
 
 // region unary operators
@@ -98,9 +82,24 @@ public:
   friend big_integer operator>>(big_integer a, int b);
 // endregion
 
+// region derived operators
+  big_integer& operator=(big_integer const&);
+  big_integer& operator+=(big_integer const&);
+  big_integer& operator-=(big_integer const&);
+  big_integer& operator*=(big_integer const&);
+  big_integer& operator/=(big_integer const&);
+  big_integer& operator%=(big_integer const&);
+  big_integer& operator&=(big_integer const&);
+  big_integer& operator|=(big_integer const&);
+  big_integer& operator^=(big_integer const&);
+  big_integer& operator<<=(int);
+  big_integer& operator>>=(int);
+// endregion
+
 // region io operators
   friend std::ostream& operator<<(std::ostream& out, big_integer const& a);
   friend std::istream& operator>>(std::istream& in, big_integer& a);
 // endregion
 };
+
 #endif //BIGINT_BIG_INTEGER_H

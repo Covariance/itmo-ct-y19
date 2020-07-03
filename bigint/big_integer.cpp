@@ -14,17 +14,15 @@ size_t big_integer::size() const {
   return data.size();
 }
 
-void big_integer::resize(size_t blocks) {
-  while (this->data.size() < blocks) { this->data.push_back(this->negative ? UINT32_MAX : 0); }
-}
-
 big_integer big_integer::convert(size_t blocks) const {
   big_integer result(*this);
   if (result.negative) {
     ++result;
     for (auto& block : result.data) { block = ~block; }
+    result.data.resize(blocks, UINT32_MAX);
+  } else {
+    result.data.resize(blocks, 0);
   }
-  result.resize(blocks);
   return result;
 }
 
@@ -32,7 +30,7 @@ big_integer bitwise(big_integer& a, big_integer const& b,
                     const std::function<uint32_t(uint32_t, uint32_t)>& op) {
   size_t sz = std::max(a.size(), b.size()) + 1;
   big_integer result, tma = a.convert(sz), tmb = b.convert(sz);
-  result.resize(sz);
+  result.data.resize(sz);
   for (size_t i = 0; i < sz; ++i) {
     result.data[i] = op(tma.data[i], tmb.data[i]);
   }
@@ -109,56 +107,6 @@ std::string to_string(big_integer const& a) {
   if (a.negative) { ans += '-'; }
   reverse(ans.begin(), ans.end());
   return ans;
-}
-// endregion
-
-// region usual equal operators
-big_integer& big_integer::operator=(big_integer const& one) {
-  big_integer tmp(one);
-  swap(tmp);
-  return *this;
-}
-
-big_integer& big_integer::operator+=(big_integer const& rhs) {
-  return *this = *this + rhs;
-}
-
-big_integer& big_integer::operator-=(big_integer const& rhs) {
-  return *this = *this - rhs;
-}
-
-big_integer& big_integer::operator*=(big_integer const& rhs) {
-  return *this = *this * rhs;
-}
-
-big_integer& big_integer::operator/=(big_integer const& rhs) {
-  return *this = *this / rhs;
-}
-
-big_integer& big_integer::operator%=(big_integer const& rhs) {
-  return *this = *this % rhs;
-}
-// endregion
-
-// region bitwise equal operators
-big_integer& big_integer::operator&=(big_integer const& rhs) {
-  return *this = *this & rhs;
-}
-
-big_integer& big_integer::operator|=(big_integer const& rhs) {
-  return *this = *this | rhs;
-}
-
-big_integer& big_integer::operator^=(big_integer const& rhs) {
-  return *this = *this ^ rhs;
-}
-
-big_integer& big_integer::operator<<=(int rhs) {
-  return *this = *this << rhs;
-}
-
-big_integer& big_integer::operator>>=(int rhs) {
-  return *this = *this >> rhs;
 }
 // endregion
 
@@ -427,16 +375,23 @@ big_integer operator%(const big_integer& a, big_integer const& b) {
 // endregion
 
 // region bitwise binary operators
+namespace big_integer_inner {
+  static const std::function<uint32_t(uint32_t, uint32_t)>
+    _and = [](uint32_t a, uint32_t b) { return a & b; },
+    _or = [](uint32_t a, uint32_t b) { return a | b; },
+    _xor = [](uint32_t a, uint32_t b) { return a ^ b; };
+}
+
 big_integer operator&(big_integer a, big_integer const& b) {
-  return bitwise(a, b, [](uint32_t a, uint32_t b) { return a & b; });
+  return bitwise(a, b, big_integer_inner::_and);
 }
 
 big_integer operator|(big_integer a, big_integer const& b) {
-  return bitwise(a, b, [](uint32_t a, uint32_t b) { return a | b; });
+  return bitwise(a, b, big_integer_inner::_or);
 }
 
 big_integer operator^(big_integer a, big_integer const& b) {
-  return bitwise(a, b, [](uint32_t a, uint32_t b) { return a ^ b; });
+  return bitwise(a, b, big_integer_inner::_xor);
 }
 
 big_integer operator<<(big_integer a, int b) {
@@ -471,6 +426,54 @@ big_integer operator>>(big_integer a, int b) {
   a.normalize();
   if (a.negative) { a--; }
   return a;
+}
+// endregion
+
+// region derived operators
+big_integer& big_integer::operator=(big_integer const& one) {
+  big_integer tmp(one);
+  swap(tmp);
+  return *this;
+}
+
+big_integer& big_integer::operator+=(big_integer const& rhs) {
+  return *this = *this + rhs;
+}
+
+big_integer& big_integer::operator-=(big_integer const& rhs) {
+  return *this = *this - rhs;
+}
+
+big_integer& big_integer::operator*=(big_integer const& rhs) {
+  return *this = *this * rhs;
+}
+
+big_integer& big_integer::operator/=(big_integer const& rhs) {
+  return *this = *this / rhs;
+}
+
+big_integer& big_integer::operator%=(big_integer const& rhs) {
+  return *this = *this % rhs;
+}
+
+big_integer& big_integer::operator&=(big_integer const& rhs) {
+  return *this = *this & rhs;
+}
+
+big_integer& big_integer::operator|=(big_integer const& rhs) {
+  return *this = *this | rhs;
+}
+
+big_integer& big_integer::operator^=(big_integer const& rhs) {
+  return *this = *this ^ rhs;
+}
+
+big_integer& big_integer::operator<<=(int rhs) {
+  return *this = *this << rhs;
+}
+
+big_integer& big_integer::operator>>=(int rhs) {
+  return *this = *this >> rhs;
 }
 // endregion
 
