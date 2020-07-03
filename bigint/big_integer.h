@@ -19,11 +19,10 @@ class big_integer {
 // region inners
   size_t size() const;
   big_integer convert(size_t) const;
-  void normalize();
-  bool zero() const;
   friend big_integer bitwise(const big_integer& a, const big_integer& b,
                              const std::function<uint32_t(uint32_t, uint32_t)>& op);
-  friend void diff(big_integer& a, const big_integer& b, size_t index);
+  void normalize();
+  bool zero() const;
 // endregion
 
 public:

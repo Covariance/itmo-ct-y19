@@ -264,27 +264,7 @@ big_integer operator*(const big_integer& a, const big_integer& b) {
   return res;
 }
 
-//region Division
 #define uint128_t unsigned __int128
-
-void diff(big_integer& a, const big_integer& b, size_t index) {
-  size_t start = a.size() - index;
-  bool borrow = false;
-  union {
-    int64_t sgn = 0;
-    uint64_t uns;
-  } c;
-  for (size_t i = 0; i != index; ++i) {
-    c.sgn = static_cast<int64_t>(a.data[start + i])
-            - static_cast<int64_t>(i < b.size() ? b.data[i] : 0)
-            - static_cast<int64_t>(borrow);
-
-    borrow = c.sgn < 0;
-    c.uns &= UINT32_MAX;
-    a.data[start + i] = static_cast<uint32_t>(c.uns);
-  }
-}
-
 big_integer operator/(const big_integer& a, const big_integer& b) {
   big_integer divident = a, divisor = b;
   divident.negative = false;
@@ -312,10 +292,17 @@ big_integer operator/(const big_integer& a, const big_integer& b) {
 
   divident.data.push_back(0);
 
-  size_t m = divisor.size() + 1, n = divident.size();
+  size_t m = divisor.size() + 1, n = divident.size(), start;
+  bool borrow;
   result.data.resize(n - m + 1);
+  union {
+    int64_t sgn = 0;
+    uint64_t uns;
+  } c;
+
 
   for (size_t i = m - 1, j = result.data.size() - 1; i != n; ++i, --j) {
+    c.sgn = 0;
     uint128_t x = (static_cast<uint128_t>(divident.data[divident.size() - 1]) << 64u) |
                   (static_cast<uint128_t>(divident.data[divident.size() - 2]) << 32u) |
                   (static_cast<uint128_t>(divident.data[divident.size() - 3]));
@@ -338,7 +325,19 @@ big_integer operator/(const big_integer& a, const big_integer& b) {
       tmp_big -= divisor;
     }
     result.data[j] = tmp_32;
-    diff(divident, tmp_big, m);
+
+    start = divident.size() - m;
+    borrow = false;
+    for (size_t k = 0; k != m; ++k) {
+      c.sgn = static_cast<int64_t>(divident.data[start + k])
+              - static_cast<int64_t>(k < tmp_big.size() ? tmp_big.data[k] : 0)
+              - static_cast<int64_t>(borrow);
+
+      borrow = c.sgn < 0;
+      c.uns &= UINT32_MAX;
+      divident.data[start + k] = static_cast<uint32_t>(c.uns);
+    }
+
     if (!divident.data.back()) { divident.data.pop_back(); }
   }
 
@@ -346,9 +345,7 @@ big_integer operator/(const big_integer& a, const big_integer& b) {
   result.normalize();
   return result;
 }
-
 #undef uint128_t
-//endregion
 
 big_integer operator%(const big_integer& a, const big_integer& b) {
   return a - (a / b) * b;
