@@ -13,8 +13,10 @@
 #include <functional>
 
 class big_integer {
+// region fields
   std::vector<uint32_t> data;
   bool negative;
+// endregion
 
 // region inners
   size_t size() const;
