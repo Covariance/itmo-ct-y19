@@ -10,7 +10,7 @@ static const big_integer ONE(1);
 static const big_integer TWO(2);
 static const big_integer TEN(10);
 
-size_t big_integer::size() const {
+inline size_t big_integer::size() const {
   return data.size();
 }
 
@@ -46,14 +46,14 @@ big_integer bitwise(big_integer& a, big_integer const& b,
   return result;
 }
 
-void big_integer::normalize() {
+inline void big_integer::normalize() {
   while (size() > 1 && data.back() == 0) { data.pop_back(); }
   if (zero()) {
     negative = false;
   }
 }
 
-bool big_integer::zero() const {
+inline bool big_integer::zero() const {
   return (data.size() == 1 && data[0] == 0);
 }
 // endregion
@@ -206,19 +206,17 @@ big_integer operator+(big_integer a, big_integer const& b) {
   }
 
   size_t size = std::max(a.size(), b.size());
-  uint64_t sum = 0, carry = 0;
+  uint64_t sum, carry = 0;
   big_integer res;
   res.data.resize(size + 1, 0);
   for (size_t i = 0; i < size; i++) {
     sum = carry;
     if (i < a.size()) { sum += a.data[i]; }
     if (i < b.size()) { sum += b.data[i]; }
-
     carry = (sum > UINT32_MAX ? 1 : 0);
-
-    res.data[i] = (uint32_t) (sum & UINT32_MAX);
+    res.data[i] = static_cast<uint32_t>(sum & UINT32_MAX);
   }
-  res.data[size] = (uint32_t) carry;
+  res.data[size] = static_cast<uint32_t>(carry);
   res.negative = a.negative;
   res.normalize();
   return res;
@@ -230,54 +228,44 @@ big_integer operator-(big_integer a, big_integer const& b) {
   }
   if (a.negative) { return (-b) - (-a); }
   if (a < b) { return -(b - a); }
-  uint32_t sub = 0, carry = 0;
+
+  uint32_t sub, carry = 0;
   big_integer res;
   res.data.resize(a.size());
 
   for (size_t i = 0; i < a.size(); i++) {
     if (i >= b.size()) {
-      if (a.data[i] >= carry) {
-        res.data[i] = a.data[i] - carry;
-        carry = 0;
-      } else {
-        res.data[i] = UINT32_MAX;
-        carry = 1;
-      }
-      continue;
-    }
-
-    if (a.data[i] >= b.data[i]) {
-      sub = a.data[i] - b.data[i];
-      if (sub >= carry) {
-        sub -= carry;
-        carry = 0;
-      } else {
-        sub = UINT32_MAX;
-        carry = 1;
-      }
+      res.data[i] = (a.data[i] >= carry) ? a.data[i] - carry : UINT32_MAX;
+      carry = (a.data[i] >= carry) ? 0 : 1;
     } else {
-      sub = UINT32_MAX - (b.data[i] - a.data[i]) + 1 - carry;
-      carry = 1;
+      if (a.data[i] >= b.data[i]) {
+        sub = (a.data[i] - b.data[i] >= carry) ? a.data[i] - b.data[i] - carry : UINT32_MAX;
+        carry = (a.data[i] - b.data[i] >= carry) ? 0 : 1;
+      } else {
+        sub = UINT32_MAX - (b.data[i] - a.data[i]) + 1 - carry;
+        carry = 1;
+      }
+      res.data[i] = sub;
     }
-
-    res.data[i] = sub;
   }
   res.normalize();
   return res;
 }
 
 big_integer operator*(big_integer a, big_integer const& b) {
-  if (a == ZERO || b == ZERO) { return big_integer(); }
+  if (a.zero() || b.zero()) { return big_integer(); }
 
   big_integer res;
   res.data.resize(a.size() + b.size(), 0);
+  uint32_t carry;
 
   for (size_t i = 0; i < a.size(); i++) {
-    uint32_t carry = 0;
+    carry = 0;
     for (size_t j = 0; j < b.size(); j++) {
-      uint64_t mul = (uint64_t) a.data[i] * b.data[j] + res.data[i + j] + carry;
-      res.data[i + j] = (uint32_t) (mul & UINT32_MAX);
-      carry = (uint32_t) (mul >> 32);
+      uint64_t mul = static_cast<uint64_t>(a.data[i]) * static_cast<uint64_t>(b.data[j]) +
+                     static_cast<uint64_t>(res.data[i + j]) + static_cast<uint64_t>(carry);
+      res.data[i + j] = static_cast<uint32_t>(mul & UINT32_MAX);
+      carry = static_cast<uint32_t>(mul >> 32u);
     }
     res.data[i + b.size()] += carry;
   }
@@ -367,7 +355,7 @@ big_integer operator/(const big_integer& f, big_integer const& one) {
 }
 
 #undef uint128_t
-//endregione
+//endregion
 
 big_integer operator%(const big_integer& a, big_integer const& b) {
   return a - (a / b) * b;

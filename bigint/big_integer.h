@@ -4,6 +4,7 @@
 #ifndef BIGINT_BIG_INTEGER_H
 #define BIGINT_BIG_INTEGER_H
 
+#pragma once
 #include <vector>
 #include <cstdint>
 #include <string>
