@@ -5,6 +5,7 @@
 #define BIGINT_BIG_INTEGER_H
 
 #pragma once
+
 #include <vector>
 #include <cstdint>
 #include <string>
@@ -20,10 +21,9 @@ class big_integer {
   big_integer convert(size_t) const;
   void normalize();
   bool zero() const;
-  friend big_integer bitwise(big_integer& a, big_integer const& b,
+  friend big_integer bitwise(const big_integer& a, const big_integer& b,
                              const std::function<uint32_t(uint32_t, uint32_t)>& op);
-  friend void difference(big_integer& a, big_integer const& b, size_t index);
-  friend inline big_integer shortdiv(big_integer const& a, uint32_t b);
+  friend void diff(big_integer& a, const big_integer& b, size_t index);
 // endregion
 
 public:
@@ -68,19 +68,19 @@ public:
 // endregion
 
 // region usual binary operators
-  friend big_integer operator+(big_integer a, big_integer const& b);
-  friend big_integer operator-(big_integer a, big_integer const& b);
-  friend big_integer operator*(big_integer a, big_integer const& b);
+  friend big_integer operator+(const big_integer& a, big_integer const& b);
+  friend big_integer operator-(const big_integer& a, big_integer const& b);
+  friend big_integer operator*(const big_integer& a, big_integer const& b);
   friend big_integer operator/(const big_integer& a, big_integer const& b); // TODO
   friend big_integer operator%(const big_integer& a, big_integer const& b);
 // endregion
 
 // region bitwise binary operators
-  friend big_integer operator&(big_integer a, big_integer const& b);
-  friend big_integer operator|(big_integer a, big_integer const& b);
-  friend big_integer operator^(big_integer a, big_integer const& b);
-  friend big_integer operator<<(big_integer a, int b);
-  friend big_integer operator>>(big_integer a, int b);
+  friend big_integer operator&(const big_integer& a, big_integer const& b);
+  friend big_integer operator|(const big_integer& a, big_integer const& b);
+  friend big_integer operator^(const big_integer& a, big_integer const& b);
+  friend big_integer operator<<(const big_integer& a, int b);
+  friend big_integer operator>>(const big_integer& a, int b);
 // endregion
 
 // region derived operators

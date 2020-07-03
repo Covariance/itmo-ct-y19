@@ -5,10 +5,13 @@
 #include "big_integer.h"
 
 // region inners
-static const big_integer ZERO(0);
-static const big_integer ONE(1);
-static const big_integer TWO(2);
-static const big_integer TEN(10);
+namespace big_integer_inner {
+  static const std::function<uint32_t(uint32_t, uint32_t)>
+    _and = [](uint32_t a, uint32_t b) { return a & b; },
+    _or = [](uint32_t a, uint32_t b) { return a | b; },
+    _xor = [](uint32_t a, uint32_t b) { return a ^ b; };
+  static const big_integer ONE(1), TEN(10);
+}
 
 inline size_t big_integer::size() const {
   return data.size();
@@ -26,7 +29,7 @@ big_integer big_integer::convert(size_t blocks) const {
   return result;
 }
 
-big_integer bitwise(big_integer& a, big_integer const& b,
+big_integer bitwise(const big_integer& a, const big_integer& b,
                     const std::function<uint32_t(uint32_t, uint32_t)>& op) {
   size_t sz = std::max(a.size(), b.size()) + 1;
   big_integer result, tma = a.convert(sz), tmb = b.convert(sz);
@@ -74,15 +77,15 @@ big_integer::big_integer(uint32_t x)
 big_integer::big_integer(uint64_t x)
   : data(0)
   , negative(false) {
-  data.push_back((uint32_t) (x & (UINT32_MAX)));
-  data.push_back((uint32_t) (x >> 32));
+  data.push_back(static_cast<uint32_t>(x & (UINT32_MAX)));
+  data.push_back(static_cast<uint32_t>(x >> 32u));
 }
 
-big_integer::big_integer(std::string const& s)
+big_integer::big_integer(const std::string& s)
   : data(1, 0)
   , negative(false) {
   size_t i = (s.length() > 0 && (s[0] == '-' || s[0] == '+')) ? 0 : -1;
-  while (++i < s.length()) { *this = (*this * TEN) + (s[i] - '0'); }
+  while (++i < s.length()) { *this = (*this * big_integer_inner::TEN) + (s[i] - '0'); }
   negative = (s[0] == '-');
   normalize();
 }
@@ -94,15 +97,16 @@ void big_integer::swap(big_integer& other) {
   std::swap(negative, other.negative);
 }
 
-std::string to_string(big_integer const& a) {
+std::string to_string(const big_integer& a) {
   if (a == big_integer()) { return "0"; }
 
   std::string ans;
-  big_integer tmp(a);
+  big_integer tmp(a), cycle_tmp;
 
-  while (tmp != ZERO) {
-    ans += char('0' + (tmp % TEN).data[0]);
-    tmp /= TEN;
+  while (!tmp.zero()) {
+    cycle_tmp = tmp / big_integer_inner::TEN;
+    ans += char('0' + (tmp - cycle_tmp * big_integer_inner::TEN).data[0]);
+    tmp = cycle_tmp;
   }
   if (a.negative) { ans += '-'; }
   reverse(ans.begin(), ans.end());
@@ -123,13 +127,13 @@ big_integer big_integer::operator-() const {
 }
 
 big_integer big_integer::operator~() const {
-  return -(*this) - ONE;
+  return -(*this) - big_integer_inner::ONE;
 }
 // endregion
 
 // region (inc/dec)rements
 big_integer& big_integer::operator++() {
-  return (*this += ONE);
+  return (*this += big_integer_inner::ONE);
 }
 
 const big_integer big_integer::operator++(int) {
@@ -139,7 +143,7 @@ const big_integer big_integer::operator++(int) {
 }
 
 big_integer& big_integer::operator--() {
-  return (*this -= ONE);
+  return (*this -= big_integer_inner::ONE);
 }
 
 const big_integer big_integer::operator--(int) {
@@ -150,57 +154,44 @@ const big_integer big_integer::operator--(int) {
 // endregion
 
 // region boolean operators
-bool operator==(big_integer const& a, big_integer const& b) {
+bool operator==(const big_integer& a, const big_integer& b) {
   return (a.negative == b.negative && a.data == b.data);
 }
 
-bool operator!=(big_integer const& a, big_integer const& b) {
+bool operator!=(const big_integer& a, const big_integer& b) {
   return !(a == b);
 }
 
-bool operator<(big_integer const& a, big_integer const& b) {
+bool operator<(const big_integer& a, const big_integer& b) {
   if (a.negative != b.negative) { return a.negative; }
 
-  if (a.negative) {
-    if (a.size() != b.size()) {
-      return a.size() > b.size();
-    }
-    size_t i = a.size();
-    while (i--) {
-      if (a.data[i] != b.data[i]) {
-        return a.data[i] > b.data[i];
-      }
-    }
-    return false;
+  if (a.size() != b.size()) {
+    return !a.negative ^ (a.size() > b.size());
   } else {
-    if (a.size() != b.size()) {
-      return a.size() < b.size();
-    }
-    size_t i = a.size();
-    while (i--) {
-      if (a.data[i] != b.data[i]) {
-        return a.data[i] < b.data[i];
+    for (size_t i = a.size(); i != 0; --i) {
+      if (a.data[i - 1] != b.data[i - 1]) {
+        return !a.negative ^ (a.data[i - 1] > b.data[i - 1]);
       }
     }
     return false;
   }
 }
 
-bool operator>(big_integer const& a, big_integer const& b) {
+bool operator>(const big_integer& a, const big_integer& b) {
   return (b < a);
 }
 
-bool operator<=(big_integer const& a, big_integer const& b) {
+bool operator<=(const big_integer& a, const big_integer& b) {
   return !(a > b);
 }
 
-bool operator>=(big_integer const& a, big_integer const& b) {
+bool operator>=(const big_integer& a, const big_integer& b) {
   return !(a < b);
 }
 // endregion
 
 // region usual binary operators
-big_integer operator+(big_integer a, big_integer const& b) {
+big_integer operator+(const big_integer& a, const big_integer& b) {
   if (a.negative != b.negative) {
     return (a.negative ? b - (-a) : a - (-b));
   }
@@ -209,7 +200,7 @@ big_integer operator+(big_integer a, big_integer const& b) {
   uint64_t sum, carry = 0;
   big_integer res;
   res.data.resize(size + 1, 0);
-  for (size_t i = 0; i < size; i++) {
+  for (size_t i = 0; i != size; ++i) {
     sum = carry;
     if (i < a.size()) { sum += a.data[i]; }
     if (i < b.size()) { sum += b.data[i]; }
@@ -222,7 +213,7 @@ big_integer operator+(big_integer a, big_integer const& b) {
   return res;
 }
 
-big_integer operator-(big_integer a, big_integer const& b) {
+big_integer operator-(const big_integer& a, const big_integer& b) {
   if (a.negative != b.negative) {
     return (a.negative ? -((-a) + b) : a + (-b));
   }
@@ -233,18 +224,17 @@ big_integer operator-(big_integer a, big_integer const& b) {
   big_integer res;
   res.data.resize(a.size());
 
-  for (size_t i = 0; i < a.size(); i++) {
+  for (size_t i = 0; i != a.size(); ++i) {
     if (i >= b.size()) {
       res.data[i] = (a.data[i] >= carry) ? a.data[i] - carry : UINT32_MAX;
       carry = (a.data[i] >= carry) ? 0 : 1;
     } else {
       if (a.data[i] >= b.data[i]) {
         sub = (a.data[i] - b.data[i] >= carry) ? a.data[i] - b.data[i] - carry : UINT32_MAX;
-        carry = (a.data[i] - b.data[i] >= carry) ? 0 : 1;
       } else {
         sub = UINT32_MAX - (b.data[i] - a.data[i]) + 1 - carry;
-        carry = 1;
       }
+      carry = a.data[i] >= b.data[i] ? ((a.data[i] - b.data[i] >= carry) ? 0 : 1) : 1;
       res.data[i] = sub;
     }
   }
@@ -252,16 +242,16 @@ big_integer operator-(big_integer a, big_integer const& b) {
   return res;
 }
 
-big_integer operator*(big_integer a, big_integer const& b) {
+big_integer operator*(const big_integer& a, const big_integer& b) {
   if (a.zero() || b.zero()) { return big_integer(); }
 
   big_integer res;
   res.data.resize(a.size() + b.size(), 0);
   uint32_t carry;
 
-  for (size_t i = 0; i < a.size(); i++) {
+  for (size_t i = 0; i != a.size(); ++i) {
     carry = 0;
-    for (size_t j = 0; j < b.size(); j++) {
+    for (size_t j = 0; j != b.size(); ++j) {
       uint64_t mul = static_cast<uint64_t>(a.data[i]) * static_cast<uint64_t>(b.data[j]) +
                      static_cast<uint64_t>(res.data[i + j]) + static_cast<uint64_t>(carry);
       res.data[i + j] = static_cast<uint32_t>(mul & UINT32_MAX);
@@ -277,182 +267,180 @@ big_integer operator*(big_integer a, big_integer const& b) {
 //region Division
 #define uint128_t unsigned __int128
 
-void difference(big_integer& a, big_integer const& b, size_t index) {
+void diff(big_integer& a, const big_integer& b, size_t index) {
   size_t start = a.size() - index;
   bool borrow = false;
-  for (size_t i = 0; i < index; ++i) {
-    uint32_t x = a.data[start + i];
-    uint32_t y = (i < b.size() ? b.data[i] : 0);
-    int64_t c = (int64_t) x - y - borrow;
+  union {
+    int64_t sgn = 0;
+    uint64_t uns;
+  } c;
+  for (size_t i = 0; i != index; ++i) {
+    c.sgn = static_cast<int64_t>(a.data[start + i])
+            - static_cast<int64_t>(i < b.size() ? b.data[i] : 0)
+            - static_cast<int64_t>(borrow);
 
-    borrow = c < 0;
-    c &= UINT32_MAX;
-    a.data[start + i] = (uint32_t) c;
+    borrow = c.sgn < 0;
+    c.uns &= UINT32_MAX;
+    a.data[start + i] = static_cast<uint32_t>(c.uns);
   }
 }
 
-inline big_integer shortdiv(big_integer const& a, uint32_t b) {
-  big_integer tmp;
-  uint64_t rest = 0, x;
-  for (size_t i = 0; i < a.size(); i++) {
-    x = (rest << 32) | a.data[a.size() - 1 - i];
-    tmp.data.push_back((uint32_t) (x / b));
-    rest = x % b;
-  }
-  reverse(tmp.data.begin(), tmp.data.end());
-  tmp.normalize();
-  return tmp;
-}
+big_integer operator/(const big_integer& a, const big_integer& b) {
+  big_integer divident = a, divisor = b;
+  divident.negative = false;
+  divisor.negative = false;
+  if (divident < divisor) { return 0; }
 
-big_integer operator/(const big_integer& f, big_integer const& one) {
-  big_integer a = f, b = one, tmp, dq;
-  a.negative = b.negative = false;
+  big_integer result;
+  if (divisor.size() == 1) {
+    uint64_t rest = 0, x;
+    for (size_t i = 0; i != divident.size(); ++i) {
+      x = (rest << 32u) | static_cast<uint64_t>(divident.data[divident.size() - 1 - i]);
+      result.data.push_back(static_cast<uint32_t>(x / divisor.data[0]));
+      rest = x % divisor.data[0];
+    }
+    reverse(result.data.begin(), result.data.end());
+    result.normalize();
 
-  if (a < b) { return ZERO; }
-
-  if (b.size() == 1) {
-    tmp = shortdiv(a, b.data[0]);
-    tmp.negative = f.negative ^ one.negative;
-    return tmp;
+    result.negative = a.negative ^ b.negative;
+    return result;
   }
 
-  a.data.push_back(0);
+  big_integer tmp_big;
+  divident.negative = divisor.negative = false;
+  uint32_t tmp_32;
 
-  size_t m = b.size() + 1, n = a.size();
-  tmp.data.resize(n - m + 1);
-  uint32_t qt;
-  for (size_t i = m, j = tmp.data.size() - 1; i <= n; ++i, --j) {
-    uint128_t x = (((uint128_t) a.data[a.size() - 1] << 64) |
-                   ((uint128_t) a.data[a.size() - 2] << 32) |
-                   ((uint128_t) a.data[a.size() - 3]));
-    uint128_t y = (((uint128_t) b.data[b.size() - 1] << 32) |
-                   (uint128_t) b.data[b.size() - 2]);
+  divident.data.push_back(0);
 
-    qt = std::min((uint32_t) (x / y), UINT32_MAX);
+  size_t m = divisor.size() + 1, n = divident.size();
+  result.data.resize(n - m + 1);
 
-    dq = b * qt;
+  for (size_t i = m - 1, j = result.data.size() - 1; i != n; ++i, --j) {
+    uint128_t x = (static_cast<uint128_t>(divident.data[divident.size() - 1]) << 64u) |
+                  (static_cast<uint128_t>(divident.data[divident.size() - 2]) << 32u) |
+                  (static_cast<uint128_t>(divident.data[divident.size() - 3]));
+    uint128_t y = (static_cast<uint128_t>(divisor.data[divisor.size() - 1]) << 32u) |
+                  (static_cast<uint128_t>(divisor.data[divisor.size() - 2]));
+
+    tmp_32 = static_cast<uint32_t>(x / y);
+    tmp_big = divisor * tmp_32;
 
     bool flag = true;
-    for (size_t k = 1; k <= a.size(); k++) {
-      if (a.data[a.size() - k] != (m - k < dq.size() ? dq.data[m - k] : 0)) {
-        flag = a.data[a.size() - k] > (m - k < dq.size() ? dq.data[m - k] : 0);
+    for (size_t k = 1; k <= divident.size(); k++) {
+      if (divident.data[divident.size() - k] != (m - k < tmp_big.size() ? tmp_big.data[m - k] : 0)) {
+        flag = divident.data[divident.size() - k] > (m - k < tmp_big.size() ? tmp_big.data[m - k] : 0);
         break;
       }
     }
 
     if (!flag) {
-      qt--;
-      dq -= b;
+      tmp_32--;
+      tmp_big -= divisor;
     }
-    tmp.data[j] = qt;
-    difference(a, dq, m);
-    if (!a.data.back()) { a.data.pop_back(); }
+    result.data[j] = tmp_32;
+    diff(divident, tmp_big, m);
+    if (!divident.data.back()) { divident.data.pop_back(); }
   }
 
-  tmp.normalize();
-  tmp.negative = f.negative ^ one.negative;
-  return tmp;
+  result.negative = a.negative ^ b.negative;
+  result.normalize();
+  return result;
 }
 
 #undef uint128_t
 //endregion
 
-big_integer operator%(const big_integer& a, big_integer const& b) {
+big_integer operator%(const big_integer& a, const big_integer& b) {
   return a - (a / b) * b;
 }
 // endregion
 
 // region bitwise binary operators
-namespace big_integer_inner {
-  static const std::function<uint32_t(uint32_t, uint32_t)>
-    _and = [](uint32_t a, uint32_t b) { return a & b; },
-    _or = [](uint32_t a, uint32_t b) { return a | b; },
-    _xor = [](uint32_t a, uint32_t b) { return a ^ b; };
-}
-
-big_integer operator&(big_integer a, big_integer const& b) {
+big_integer operator&(const big_integer& a, const big_integer& b) {
   return bitwise(a, b, big_integer_inner::_and);
 }
 
-big_integer operator|(big_integer a, big_integer const& b) {
+big_integer operator|(const big_integer& a, const big_integer& b) {
   return bitwise(a, b, big_integer_inner::_or);
 }
 
-big_integer operator^(big_integer a, big_integer const& b) {
+big_integer operator^(const big_integer& a, const big_integer& b) {
   return bitwise(a, b, big_integer_inner::_xor);
 }
 
-big_integer operator<<(big_integer a, int b) {
+big_integer operator<<(const big_integer& a, int b) {
+  big_integer result(a);
   size_t block_shift = static_cast<size_t>(b) >> 5u,
     inner_shift = static_cast<size_t>(b) & 31u;
   uint32_t carry = 0, tmp;
-  for (uint32_t& i : a.data) {
+  for (uint32_t& i : result.data) {
     tmp = (i >> (32 - inner_shift));
     i = ((i << inner_shift) | carry);
     carry = tmp;
   }
-  if (carry > 0) { a.data.push_back(carry); }
-  a.data.resize(a.data.size() + block_shift);
-  for (size_t i = a.data.size(); i > block_shift; i--) {
-    a.data[i - 1] = a.data[i - block_shift - 1];
+  if (carry > 0) { result.data.push_back(carry); }
+  result.data.resize(result.data.size() + block_shift);
+  for (size_t i = result.data.size(); i > block_shift; i--) {
+    result.data[i - 1] = result.data[i - block_shift - 1];
   }
-  std::fill(a.data.begin(), a.data.begin() + block_shift, 0);
-  return a;
+  std::fill(result.data.begin(), result.data.begin() + block_shift, 0);
+  return result;
 }
 
-big_integer operator>>(big_integer a, int b) {
+big_integer operator>>(const big_integer& a, int b) {
+  big_integer result(a);
   size_t block_shift = static_cast<size_t> (b) >> 5u,
     inner_shift = static_cast<size_t> (b) & 31u;
   uint32_t carry = 0, tmp, offset = (1u << inner_shift) - 1;
-  for (size_t i = block_shift; i < a.data.size(); i++) { a.data[i - block_shift] = a.data[i]; }
-  a.data.resize(a.data.size() - block_shift);
-  for (auto i = a.data.rbegin(); i != a.data.rend(); i++) {
+  for (size_t i = block_shift; i < result.data.size(); ++i) { result.data[i - block_shift] = result.data[i]; }
+  result.data.resize(result.data.size() - block_shift);
+  for (auto i = result.data.rbegin(); i != result.data.rend(); ++i) {
     tmp = (*i & offset) << (32 - inner_shift);
     *i = ((*i >> inner_shift) | carry);
     carry = tmp;
   }
-  a.normalize();
-  if (a.negative) { a--; }
-  return a;
+  result.normalize();
+  if (result.negative) { result--; }
+  return result;
 }
 // endregion
 
 // region derived operators
-big_integer& big_integer::operator=(big_integer const& one) {
+big_integer& big_integer::operator=(const big_integer& one) {
   big_integer tmp(one);
   swap(tmp);
   return *this;
 }
 
-big_integer& big_integer::operator+=(big_integer const& rhs) {
+big_integer& big_integer::operator+=(const big_integer& rhs) {
   return *this = *this + rhs;
 }
 
-big_integer& big_integer::operator-=(big_integer const& rhs) {
+big_integer& big_integer::operator-=(const big_integer& rhs) {
   return *this = *this - rhs;
 }
 
-big_integer& big_integer::operator*=(big_integer const& rhs) {
+big_integer& big_integer::operator*=(const big_integer& rhs) {
   return *this = *this * rhs;
 }
 
-big_integer& big_integer::operator/=(big_integer const& rhs) {
+big_integer& big_integer::operator/=(const big_integer& rhs) {
   return *this = *this / rhs;
 }
 
-big_integer& big_integer::operator%=(big_integer const& rhs) {
+big_integer& big_integer::operator%=(const big_integer& rhs) {
   return *this = *this % rhs;
 }
 
-big_integer& big_integer::operator&=(big_integer const& rhs) {
+big_integer& big_integer::operator&=(const big_integer& rhs) {
   return *this = *this & rhs;
 }
 
-big_integer& big_integer::operator|=(big_integer const& rhs) {
+big_integer& big_integer::operator|=(const big_integer& rhs) {
   return *this = *this | rhs;
 }
 
-big_integer& big_integer::operator^=(big_integer const& rhs) {
+big_integer& big_integer::operator^=(const big_integer& rhs) {
   return *this = *this ^ rhs;
 }
 
@@ -466,7 +454,7 @@ big_integer& big_integer::operator>>=(int rhs) {
 // endregion
 
 // region io operators
-std::ostream& operator<<(std::ostream& s, big_integer const& a) {
+std::ostream& operator<<(std::ostream& s, const big_integer& a) {
   return s << to_string(a);
 }
 
