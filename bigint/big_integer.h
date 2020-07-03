@@ -11,10 +11,11 @@
 #include <functional>
 
 class big_integer {
-  std::vector<uint32_t> value;
-  bool sign;
+  std::vector<uint32_t> data;
+  bool negative;
 
   size_t size() const;
+  void resize(size_t);
   big_integer convert(size_t) const;
   void normalize();
   bool zero() const;
@@ -26,11 +27,11 @@ class big_integer {
 public:
 // region constructors
   big_integer();
-  big_integer(big_integer const&) = default;
   big_integer(int);
   big_integer(uint32_t);
   big_integer(uint64_t);
   explicit big_integer(std::string const&);
+  big_integer(big_integer const&) = default;
 // endregion
 
 // region destructor
@@ -51,7 +52,7 @@ public:
   big_integer& operator%=(big_integer const&);
 // endregion
 
-// region bitwise equal operators TODO
+// region bitwise equal operators
   big_integer& operator&=(big_integer const&);
   big_integer& operator|=(big_integer const&);
   big_integer& operator^=(big_integer const&);
@@ -62,7 +63,7 @@ public:
 // region unary operators
   big_integer operator+() const;
   big_integer operator-() const;
-  big_integer operator~() const; // TODO
+  big_integer operator~() const;
 // endregion
 
 // region (inc/dec)rements
@@ -89,7 +90,7 @@ public:
   friend big_integer operator%(const big_integer& a, big_integer const& b);
 // endregion
 
-// region bitwise binary operators // TODO
+// region bitwise binary operators
   friend big_integer operator&(big_integer a, big_integer const& b);
   friend big_integer operator|(big_integer a, big_integer const& b);
   friend big_integer operator^(big_integer a, big_integer const& b);
