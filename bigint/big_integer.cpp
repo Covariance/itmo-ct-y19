@@ -366,17 +366,13 @@ big_integer operator<<(const big_integer& a, int b) {
   size_t block_shift = static_cast<size_t>(b) >> 5u,
     inner_shift = static_cast<size_t>(b) & 31u;
   uint32_t carry = 0, tmp;
-  for (uint32_t& i : result.data) {
-    tmp = (i >> (32 - inner_shift));
-    i = ((i << inner_shift) | carry);
+  for (auto i = result.data.begin(); i != result.data.end(); ++i) {
+    tmp = (*i >> (32 - inner_shift));
+    *i = ((*i << inner_shift) | carry);
     carry = tmp;
   }
   if (carry > 0) { result.data.push_back(carry); }
-  result.data.resize(result.data.size() + block_shift);
-  for (size_t i = result.data.size(); i > block_shift; i--) {
-    result.data[i - 1] = result.data[i - block_shift - 1];
-  }
-  std::fill(result.data.begin(), result.data.begin() + block_shift, 0);
+  result.data.insert(result.data.begin(), block_shift, 0);
   return result;
 }
 
@@ -384,13 +380,10 @@ big_integer operator>>(const big_integer& a, int b) {
   big_integer result(a);
   size_t block_shift = static_cast<size_t> (b) >> 5u,
     inner_shift = static_cast<size_t> (b) & 31u;
-  uint32_t carry = 0, tmp, offset = (1u << inner_shift) - 1;
-  for (size_t i = block_shift; i < result.data.size(); ++i) {
-    result.data[i - block_shift] = result.data[i];
-  }
-  result.data.resize(result.data.size() - block_shift);
+  uint32_t carry = 0, tmp;
+  result.data.erase(result.data.begin(), result.data.begin() + block_shift);
   for (auto i = result.data.rbegin(); i != result.data.rend(); ++i) {
-    tmp = (*i & offset) << (32 - inner_shift);
+    tmp = (*i << (32 - inner_shift));
     *i = ((*i >> inner_shift) | carry);
     carry = tmp;
   }
