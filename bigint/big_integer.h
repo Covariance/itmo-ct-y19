@@ -24,7 +24,6 @@ class big_integer {
   friend big_integer bitwise(const big_integer& a, const big_integer& b,
                              const std::function<uint32_t(uint32_t, uint32_t)>& op);
   void normalize();
-  bool zero() const;
 // endregion
 
 public:
