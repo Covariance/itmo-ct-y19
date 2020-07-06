@@ -11,13 +11,15 @@ add_executable(big_integer_testing
                big_integer.cpp
                gtest/gtest-all.cc
                gtest/gtest.h
-               gtest/gtest_main.cc 
-               big_integer_gmp.cpp 
-               big_integer_gmp.h)
+               gtest/gtest_main.cc
+               big_integer_gmp.cpp
+               big_integer_gmp.h
+               shared_vector_wrapper.h
+               shared_vector_wrapper.cpp)
 
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=undefined,address,leak -fno-sanitize-recover=all -D_GLIBCXX_DEBUG")
-endif()
+endif ()
 
 target_link_libraries(big_integer_testing -lgmp -lpthread)

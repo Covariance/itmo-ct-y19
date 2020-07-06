@@ -3,7 +3,6 @@
 //
 #ifndef BIGINT_BIG_INTEGER_H
 #define BIGINT_BIG_INTEGER_H
-
 #pragma once
 
 #include <vector>
@@ -11,6 +10,7 @@
 #include <string>
 #include <algorithm>
 #include <functional>
+#include "shared_vector_wrapper.h"
 
 class big_integer {
 // region fields

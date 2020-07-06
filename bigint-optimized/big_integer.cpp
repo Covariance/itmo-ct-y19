@@ -21,7 +21,7 @@ big_integer big_integer::convert(size_t blocks) const {
   big_integer result(*this);
   if (result.negative) {
     ++result;
-    for (auto& block : result.data) { block = ~block; }
+    for (size_t i = 0; i != result.data.size(); ++i) { result.data[i] = ~result.data[i]; }
     result.data.resize(blocks, UINT32_MAX);
   } else {
     result.data.resize(blocks, 0);
@@ -40,9 +40,7 @@ big_integer bitwise(const big_integer& a, const big_integer& b,
   result.negative = op(tma.negative, tmb.negative);
   result.normalize();
   if (result.negative) {
-    for (auto& block : result.data) {
-      block = ~block;
-    }
+    for (size_t i = 0; i != result.data.size(); ++i) { result.data[i] = ~result.data[i]; }
     --result;
   }
   result.normalize();
@@ -57,7 +55,7 @@ inline void big_integer::normalize() {
 
 // region constructors
 big_integer::big_integer()
-  : data(1)
+  : data(1, 0)
   , negative(false) {}
 
 big_integer::big_integer(int x)
@@ -69,10 +67,10 @@ big_integer::big_integer(uint32_t x)
   , negative(false) {}
 
 big_integer::big_integer(uint64_t x)
-  : data(0)
+  : data(2)
   , negative(false) {
-  data.push_back(static_cast<uint32_t>(x & (UINT32_MAX)));
-  data.push_back(static_cast<uint32_t>(x >> 32u));
+  data[0] = static_cast<uint32_t>(x & (UINT32_MAX));
+  data[1] = static_cast<uint32_t>(x >> 32u);
 }
 
 big_integer::big_integer(const std::string& s)
@@ -366,9 +364,9 @@ big_integer operator<<(const big_integer& a, int b) {
   size_t block_shift = static_cast<size_t>(b) >> 5u,
     inner_shift = static_cast<size_t>(b) & 31u;
   uint32_t carry = 0, tmp;
-  for (auto i = result.data.begin(); i != result.data.end(); ++i) {
-    tmp = (*i >> (32 - inner_shift));
-    *i = ((*i << inner_shift) | carry);
+  for (size_t i = 0; i != result.data.size(); ++i) {
+    tmp = (result.data[i] >> (32 - inner_shift));
+    result.data[i] = ((result.data[i] << inner_shift) | carry);
     carry = tmp;
   }
   if (carry > 0) { result.data.push_back(carry); }
@@ -382,9 +380,9 @@ big_integer operator>>(const big_integer& a, int b) {
     inner_shift = static_cast<size_t> (b) & 31u;
   uint32_t carry = 0, tmp;
   result.data.erase(result.data.begin(), result.data.begin() + block_shift);
-  for (auto i = result.data.rbegin(); i != result.data.rend(); ++i) {
-    tmp = (*i << (32 - inner_shift));
-    *i = ((*i >> inner_shift) | carry);
+  for (size_t i = result.data.size(); i != 0; --i) {
+    tmp = (result.data[i - 1] << (32 - inner_shift));
+    result.data[i - 1] = ((result.data[i - 1] >> inner_shift) | carry);
     carry = tmp;
   }
   result.normalize();
