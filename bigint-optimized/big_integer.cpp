@@ -388,8 +388,8 @@ big_integer operator>>(const big_integer& a, int b) {
 // endregion
 
 // region derived operators
-big_integer& big_integer::operator=(const big_integer& one) {
-  big_integer tmp(one);
+big_integer& big_integer::operator=(const big_integer& that) {
+  big_integer tmp(that);
   swap(tmp);
   return *this;
 }
