@@ -10,11 +10,11 @@
 #include <string>
 #include <algorithm>
 #include <functional>
-#include "data_cow_guard.h"
+#include "small_object.h"
 
 class big_integer {
 // region fields
-  data_cow_guard data;
+  small_object data;
   bool negative;
 // endregion
 
