@@ -13,7 +13,13 @@
 
 class small_object {
 // region fields
-  cow_wrapper* data;
+  static const size_t MAX_SIZE = 2;
+  bool small;
+  size_t small_size;
+  union {
+    uint32_t small_val[MAX_SIZE]{};
+    cow_wrapper* data;
+  };
 // endregion
 
   void uniquify() {
@@ -22,90 +28,142 @@ class small_object {
     }
   }
 
-public:
-  // region (cons/des)tructors
-  small_object(size_t size, uint32_t val) {
-    data = new cow_wrapper(std::vector<uint32_t>(size, val));
+  void desmall() {
+    if (small) {
+      uint32_t tmp[MAX_SIZE]{};
+      std::copy_n(small_val, small_size, tmp);
+      data = new cow_wrapper(0, 0);
+      for (size_t i = 0; i != small_size; ++i) { data->push_back(tmp[i]); }
+      small = false;
+    }
   }
 
-  small_object(const small_object& that) {
-    that.data->add_ref();
-    data = that.data;
+public:
+  // region (cons/des)tructors
+  small_object(size_t size, uint32_t val)
+    : small(size <= MAX_SIZE)
+    , small_size(size) {
+    if (small) {
+      for (size_t i = 0; i != small_size; ++i) { small_val[i] = val; }
+      desmall();
+    } else {
+      data = new cow_wrapper(std::vector<uint32_t>(size, val));
+    }
+  }
+
+  small_object(const small_object& that)
+    : small(that.small)
+    , small_size(that.small_size) {
+    if (small) {
+      std::copy_n(that.small_val, small_size, small_val);
+      desmall();
+    } else {
+      that.data->add_ref();
+      data = that.data;
+    }
   }
 
   ~small_object() {
-    if (data->unique()) {
-      delete data;
-      data = nullptr;
-    } else {
-      data->rem_ref();
+    if (!small) {
+      if (data->unique()) {
+        delete data;
+        data = nullptr;
+      } else {
+        data->rem_ref();
+      }
     }
   }
   // endregion
 
   // region accessors
   size_t size() const {
-    return data->size();
+    return small ? small_size : data->size();
   }
 
   uint32_t operator[](size_t i) const {
-    return (*data)[i];
+    return small ? small_val[i] : (*data)[i];
   }
 
   uint32_t back() const {
-    return data->back();
-  }
-
-  bool operator==(const small_object& that) const {
-    return *this->data == *that.data;
+    return small ? small_val[small_size - 1] : data->back();
   }
   // endregion
 
   // region changers
   small_object& operator=(const small_object& that) {
     if (this != &that) {
-      if (data->unique()) {
-        delete data;
-      } else {
-        data->rem_ref();
+      if (this->small && that.small) {
+        small_size = that.small_size;
+        std::copy_n(that.small_val, small_size, small_val);
       }
-      that.data->add_ref();
-      data = that.data;
+
+      if (this->small && !that.small) {
+        that.data->add_ref();
+        data = that.data;
+      }
+
+      if (!this->small && that.small) {
+        if (data->unique()) {
+          delete data;
+        } else {
+          data->rem_ref();
+        }
+
+        small = that.small;
+        small_size = that.small_size;
+        std::copy_n(that.small_val, small_size, small_val);
+      }
+
+      if (!this->small && !that.small) {
+        if (data->unique()) {
+          delete data;
+        } else {
+          data->rem_ref();
+        }
+        that.data->add_ref();
+        data = that.data;
+      }
     }
     return *this;
   }
 
   void resize(size_t size, uint32_t val) {
+    desmall();
     uniquify();
     data->resize(size, val);
   }
 
   uint32_t& operator[](size_t i) {
+    desmall();
     uniquify();
     return (*data)[i];
   }
 
   void pop_back() {
+    desmall();
     uniquify();
     data->pop_back();
   }
 
   void push_back(uint32_t val) {
+    desmall();
     uniquify();
     data->push_back(val);
   }
 
   void reverse() {
+    desmall();
     uniquify();
     data->reverse();
   }
 
   void insert(size_t len) {
+    desmall();
     data->insert(len);
-    //data->insert(data->begin(), len, 0);
   }
 
   void erase(size_t len) {
+    desmall();
     uniquify();
     data->erase(len);
   }

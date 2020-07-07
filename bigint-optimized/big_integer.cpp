@@ -143,7 +143,13 @@ const big_integer big_integer::operator--(int) {
 
 // region boolean operators
 bool operator==(const big_integer& a, const big_integer& b) {
-  return (a.negative == b.negative && a.data == b.data);
+  if (a.negative != b.negative || a.data.size() != b.data.size()) { return false; }
+  for (size_t i = 0; i != a.data.size(); ++i) {
+    if (a.data[i] != b.data[i]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 bool operator!=(const big_integer& a, const big_integer& b) {
@@ -306,7 +312,8 @@ big_integer operator/(const big_integer& a, const big_integer& b) {
       if (divident.data[divident.data.size() - k] !=
           (m - k < tmp_big.data.size() ? tmp_big.data[m - k] : 0)) {
         flag =
-          divident.data[divident.data.size() - k] > (m - k < tmp_big.data.size() ? tmp_big.data[m - k] : 0);
+          divident.data[divident.data.size() - k] >
+          (m - k < tmp_big.data.size() ? tmp_big.data[m - k] : 0);
         break;
       }
     }
