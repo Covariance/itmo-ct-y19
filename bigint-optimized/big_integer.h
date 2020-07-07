@@ -10,7 +10,6 @@
 #include <string>
 #include <algorithm>
 #include <functional>
-#include "shared_vector_wrapper.h"
 
 class big_integer {
 // region fields
