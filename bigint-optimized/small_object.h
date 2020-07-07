@@ -7,14 +7,11 @@
 #pragma once
 
 #include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <vector>
 
 #include "cow_wrapper.h"
-
-#ifdef _GLIBCXX_DEBUG
-#include <assert.h>
-#endif
 
 class small_object {
 // region fields
