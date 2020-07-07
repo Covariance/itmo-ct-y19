@@ -33,7 +33,7 @@ public:
   big_integer(uint32_t);
   big_integer(uint64_t);
   explicit big_integer(std::string const&);
-  big_integer(big_integer const&) = default;
+  big_integer(const big_integer&) = default;
 // endregion
 
 // region destructor
@@ -42,7 +42,7 @@ public:
 
 // region support fucntions
   void swap(big_integer&);
-  friend std::string to_string(big_integer const&);
+  friend std::string to_string(const big_integer&);
 // endregion
 
 // region unary operators
@@ -59,46 +59,46 @@ public:
 // endregion
 
 // region boolean operators
-  friend bool operator==(big_integer const& a, big_integer const& b);
-  friend bool operator!=(big_integer const& a, big_integer const& b);
-  friend bool operator<(big_integer const& a, big_integer const& b);
-  friend bool operator>(big_integer const& a, big_integer const& b);
-  friend bool operator<=(big_integer const& a, big_integer const& b);
-  friend bool operator>=(big_integer const& a, big_integer const& b);
+  friend bool operator==(const big_integer& a, const big_integer& b);
+  friend bool operator!=(const big_integer& a, const big_integer& b);
+  friend bool operator<(const big_integer& a, const big_integer& b);
+  friend bool operator>(const big_integer& a, const big_integer& b);
+  friend bool operator<=(const big_integer& a, const big_integer& b);
+  friend bool operator>=(const big_integer& a, const big_integer& b);
 // endregion
 
 // region usual binary operators
-  friend big_integer operator+(const big_integer& a, big_integer const& b);
-  friend big_integer operator-(const big_integer& a, big_integer const& b);
-  friend big_integer operator*(const big_integer& a, big_integer const& b);
-  friend big_integer operator/(const big_integer& a, big_integer const& b); // TODO
-  friend big_integer operator%(const big_integer& a, big_integer const& b);
+  friend big_integer operator+(const big_integer& a, const big_integer& b);
+  friend big_integer operator-(const big_integer& a, const big_integer& b);
+  friend big_integer operator*(const big_integer& a, const big_integer& b);
+  friend big_integer operator/(const big_integer& a, const big_integer& b);
+  friend big_integer operator%(const big_integer& a, const big_integer& b);
 // endregion
 
 // region bitwise binary operators
-  friend big_integer operator&(const big_integer& a, big_integer const& b);
-  friend big_integer operator|(const big_integer& a, big_integer const& b);
-  friend big_integer operator^(const big_integer& a, big_integer const& b);
+  friend big_integer operator&(const big_integer& a, const big_integer& b);
+  friend big_integer operator|(const big_integer& a, const big_integer& b);
+  friend big_integer operator^(const big_integer& a, const big_integer& b);
   friend big_integer operator<<(const big_integer& a, int b);
   friend big_integer operator>>(const big_integer& a, int b);
 // endregion
 
 // region derived operators
-  big_integer& operator=(big_integer const&);
-  big_integer& operator+=(big_integer const&);
-  big_integer& operator-=(big_integer const&);
-  big_integer& operator*=(big_integer const&);
-  big_integer& operator/=(big_integer const&);
-  big_integer& operator%=(big_integer const&);
-  big_integer& operator&=(big_integer const&);
-  big_integer& operator|=(big_integer const&);
-  big_integer& operator^=(big_integer const&);
+  big_integer& operator=(const big_integer&);
+  big_integer& operator+=(const big_integer&);
+  big_integer& operator-=(const big_integer&);
+  big_integer& operator*=(const big_integer&);
+  big_integer& operator/=(const big_integer&);
+  big_integer& operator%=(const big_integer&);
+  big_integer& operator&=(const big_integer&);
+  big_integer& operator|=(const big_integer&);
+  big_integer& operator^=(const big_integer&);
   big_integer& operator<<=(int);
   big_integer& operator>>=(int);
 // endregion
 
 // region io operators
-  friend std::ostream& operator<<(std::ostream& out, big_integer const& a);
+  friend std::ostream& operator<<(std::ostream& out, const big_integer& a);
   friend std::istream& operator>>(std::istream& in, big_integer& a);
 // endregion
 };
