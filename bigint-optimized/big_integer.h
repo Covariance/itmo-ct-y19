@@ -10,15 +10,15 @@
 #include <string>
 #include <algorithm>
 #include <functional>
+#include "data_cow_guard.h"
 
 class big_integer {
 // region fields
-  std::vector<uint32_t> data;
+  data_cow_guard data;
   bool negative;
 // endregion
 
 // region inners
-  size_t size() const;
   big_integer convert(size_t) const;
   friend big_integer bitwise(const big_integer& a, const big_integer& b,
                              const std::function<uint32_t(uint32_t, uint32_t)>& op);

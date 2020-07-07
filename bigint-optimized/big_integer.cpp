@@ -13,10 +13,6 @@ namespace big_integer_inner {
   static const big_integer ZERO(0), ONE(1), TEN(10);
 }
 
-inline size_t big_integer::size() const {
-  return data.size();
-}
-
 big_integer big_integer::convert(size_t blocks) const {
   big_integer result(*this);
   if (result.negative) {
@@ -31,9 +27,9 @@ big_integer big_integer::convert(size_t blocks) const {
 
 big_integer bitwise(const big_integer& a, const big_integer& b,
                     const std::function<uint32_t(uint32_t, uint32_t)>& op) {
-  size_t sz = std::max(a.size(), b.size()) + 1;
+  size_t sz = std::max(a.data.size(), b.data.size()) + 1;
   big_integer result, tma = a.convert(sz), tmb = b.convert(sz);
-  result.data.resize(sz);
+  result.data.resize(sz, 0);
   for (size_t i = 0; i < sz; ++i) {
     result.data[i] = op(tma.data[i], tmb.data[i]);
   }
@@ -48,7 +44,7 @@ big_integer bitwise(const big_integer& a, const big_integer& b,
 }
 
 inline void big_integer::normalize() {
-  while (size() > 1 && data.back() == 0) { data.pop_back(); }
+  while (data.size() > 1 && data.back() == 0) { data.pop_back(); }
   if (this->data.size() == 1 && this->data[0] == 0) { negative = false; }
 }
 // endregion
@@ -67,7 +63,7 @@ big_integer::big_integer(uint32_t x)
   , negative(false) {}
 
 big_integer::big_integer(uint64_t x)
-  : data(2)
+  : data(2, 0)
   , negative(false) {
   data[0] = static_cast<uint32_t>(x & (UINT32_MAX));
   data[1] = static_cast<uint32_t>(x >> 32u);
@@ -157,10 +153,10 @@ bool operator!=(const big_integer& a, const big_integer& b) {
 bool operator<(const big_integer& a, const big_integer& b) {
   if (a.negative != b.negative) { return a.negative; }
 
-  if (a.size() != b.size()) {
-    return !a.negative ^ (a.size() > b.size());
+  if (a.data.size() != b.data.size()) {
+    return !a.negative ^ (a.data.size() > b.data.size());
   } else {
-    for (size_t i = a.size(); i != 0; --i) {
+    for (size_t i = a.data.size(); i != 0; --i) {
       if (a.data[i - 1] != b.data[i - 1]) {
         return !a.negative ^ (a.data[i - 1] > b.data[i - 1]);
       }
@@ -188,14 +184,14 @@ big_integer operator+(const big_integer& a, const big_integer& b) {
     return (a.negative ? b - (-a) : a - (-b));
   }
 
-  size_t size = std::max(a.size(), b.size());
+  size_t size = std::max(a.data.size(), b.data.size());
   uint64_t sum, carry = 0;
   big_integer res;
   res.data.resize(size + 1, 0);
   for (size_t i = 0; i != size; ++i) {
     sum = carry;
-    if (i < a.size()) { sum += a.data[i]; }
-    if (i < b.size()) { sum += b.data[i]; }
+    if (i < a.data.size()) { sum += a.data[i]; }
+    if (i < b.data.size()) { sum += b.data[i]; }
     carry = (sum > UINT32_MAX ? 1 : 0);
     res.data[i] = static_cast<uint32_t>(sum & UINT32_MAX);
   }
@@ -214,10 +210,10 @@ big_integer operator-(const big_integer& a, const big_integer& b) {
 
   uint32_t sub, carry = 0;
   big_integer res;
-  res.data.resize(a.size());
+  res.data.resize(a.data.size(), 0);
 
-  for (size_t i = 0; i != a.size(); ++i) {
-    if (i >= b.size()) {
+  for (size_t i = 0; i != a.data.size(); ++i) {
+    if (i >= b.data.size()) {
       res.data[i] = (a.data[i] >= carry) ? a.data[i] - carry : UINT32_MAX;
       carry = (a.data[i] >= carry) ? 0 : 1;
     } else {
@@ -238,18 +234,18 @@ big_integer operator*(const big_integer& a, const big_integer& b) {
   if (a == big_integer_inner::ZERO || b == big_integer_inner::ZERO) { return big_integer(); }
 
   big_integer res;
-  res.data.resize(a.size() + b.size(), 0);
+  res.data.resize(a.data.size() + b.data.size(), 0);
   uint32_t carry;
 
-  for (size_t i = 0; i != a.size(); ++i) {
+  for (size_t i = 0; i != a.data.size(); ++i) {
     carry = 0;
-    for (size_t j = 0; j != b.size(); ++j) {
+    for (size_t j = 0; j != b.data.size(); ++j) {
       uint64_t mul = static_cast<uint64_t>(a.data[i]) * static_cast<uint64_t>(b.data[j]) +
                      static_cast<uint64_t>(res.data[i + j]) + static_cast<uint64_t>(carry);
       res.data[i + j] = static_cast<uint32_t>(mul & UINT32_MAX);
       carry = static_cast<uint32_t>(mul >> 32u);
     }
-    res.data[i + b.size()] += carry;
+    res.data[i + b.data.size()] += carry;
   }
   res.negative = a.negative ^ b.negative;
   res.normalize();
@@ -265,14 +261,14 @@ big_integer operator/(const big_integer& a, const big_integer& b) {
   if (divident < divisor) { return 0; }
 
   big_integer result;
-  if (divisor.size() == 1) {
+  if (divisor.data.size() == 1) {
     uint64_t rest = 0, x;
-    for (size_t i = 0; i != divident.size(); ++i) {
-      x = (rest << 32u) | static_cast<uint64_t>(divident.data[divident.size() - 1 - i]);
+    for (size_t i = 0; i != divident.data.size(); ++i) {
+      x = (rest << 32u) | static_cast<uint64_t>(divident.data[divident.data.size() - 1 - i]);
       result.data.push_back(static_cast<uint32_t>(x / divisor.data[0]));
       rest = x % divisor.data[0];
     }
-    reverse(result.data.begin(), result.data.end());
+    result.data.reverse();
     result.normalize();
 
     result.negative = a.negative ^ b.negative;
@@ -285,9 +281,9 @@ big_integer operator/(const big_integer& a, const big_integer& b) {
 
   divident.data.push_back(0);
 
-  size_t m = divisor.size() + 1, n = divident.size(), start;
+  size_t m = divisor.data.size() + 1, n = divident.data.size(), start;
   bool borrow;
-  result.data.resize(n - m + 1);
+  result.data.resize(n - m + 1, 0);
   union {
     int64_t sgn = 0;
     uint64_t uns;
@@ -296,21 +292,21 @@ big_integer operator/(const big_integer& a, const big_integer& b) {
 
   for (size_t i = m - 1, j = result.data.size() - 1; i != n; ++i, --j) {
     c.sgn = 0;
-    uint128_t x = (static_cast<uint128_t>(divident.data[divident.size() - 1]) << 64u) |
-                  (static_cast<uint128_t>(divident.data[divident.size() - 2]) << 32u) |
-                  (static_cast<uint128_t>(divident.data[divident.size() - 3]));
-    uint128_t y = (static_cast<uint128_t>(divisor.data[divisor.size() - 1]) << 32u) |
-                  (static_cast<uint128_t>(divisor.data[divisor.size() - 2]));
+    uint128_t x = (static_cast<uint128_t>(divident.data[divident.data.size() - 1]) << 64u) |
+                  (static_cast<uint128_t>(divident.data[divident.data.size() - 2]) << 32u) |
+                  (static_cast<uint128_t>(divident.data[divident.data.size() - 3]));
+    uint128_t y = (static_cast<uint128_t>(divisor.data[divisor.data.size() - 1]) << 32u) |
+                  (static_cast<uint128_t>(divisor.data[divisor.data.size() - 2]));
 
     tmp_32 = static_cast<uint32_t>(x / y);
     tmp_big = divisor * tmp_32;
 
     bool flag = true;
-    for (size_t k = 1; k <= divident.size(); k++) {
-      if (divident.data[divident.size() - k] !=
-          (m - k < tmp_big.size() ? tmp_big.data[m - k] : 0)) {
+    for (size_t k = 1; k <= divident.data.size(); k++) {
+      if (divident.data[divident.data.size() - k] !=
+          (m - k < tmp_big.data.size() ? tmp_big.data[m - k] : 0)) {
         flag =
-          divident.data[divident.size() - k] > (m - k < tmp_big.size() ? tmp_big.data[m - k] : 0);
+          divident.data[divident.data.size() - k] > (m - k < tmp_big.data.size() ? tmp_big.data[m - k] : 0);
         break;
       }
     }
@@ -321,11 +317,11 @@ big_integer operator/(const big_integer& a, const big_integer& b) {
     }
     result.data[j] = tmp_32;
 
-    start = divident.size() - m;
+    start = divident.data.size() - m;
     borrow = false;
     for (size_t k = 0; k != m; ++k) {
       c.sgn = static_cast<int64_t>(divident.data[start + k])
-              - static_cast<int64_t>(k < tmp_big.size() ? tmp_big.data[k] : 0)
+              - static_cast<int64_t>(k < tmp_big.data.size() ? tmp_big.data[k] : 0)
               - static_cast<int64_t>(borrow);
 
       borrow = c.sgn < 0;
@@ -370,7 +366,7 @@ big_integer operator<<(const big_integer& a, int b) {
     carry = tmp;
   }
   if (carry > 0) { result.data.push_back(carry); }
-  result.data.insert(result.data.begin(), block_shift, 0);
+  result.data.insert(block_shift);
   return result;
 }
 
@@ -379,7 +375,7 @@ big_integer operator>>(const big_integer& a, int b) {
   size_t block_shift = static_cast<size_t> (b) >> 5u,
     inner_shift = static_cast<size_t> (b) & 31u;
   uint32_t carry = 0, tmp;
-  result.data.erase(result.data.begin(), result.data.begin() + block_shift);
+  result.data.erase(block_shift);
   for (size_t i = result.data.size(); i != 0; --i) {
     tmp = (result.data[i - 1] << (32 - inner_shift));
     result.data[i - 1] = ((result.data[i - 1] >> inner_shift) | carry);
