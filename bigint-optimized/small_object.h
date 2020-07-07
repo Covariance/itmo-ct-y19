@@ -12,6 +12,10 @@
 
 #include "cow_wrapper.h"
 
+#ifdef _GLIBCXX_DEBUG
+#include <assert.h>
+#endif
+
 class small_object {
 // region fields
   static constexpr size_t MAX_SIZE = 2;
