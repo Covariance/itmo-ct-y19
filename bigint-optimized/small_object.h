@@ -132,9 +132,8 @@ public:
       desmall();
     }
     if (small) {
-      while (small_size < size) {
-        small_val[small_size++] = val;
-      }
+      std::fill(small_val + small_size, small_val + size, val);
+      small_size = size;
     } else {
       uniquify();
       data->resize(size, val);
