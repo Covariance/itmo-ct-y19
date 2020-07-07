@@ -23,16 +23,16 @@ public:
   }
 
   void add_ref() {
-    counter++;
+    ++counter;
   }
 
   void rem_ref() {
-    counter--;
+    --counter;
   }
 
   cow_wrapper* extract_unique() {
     if (unique()) { return this; }
-    counter--;
+    --counter;
     return new cow_wrapper(data);
   }
 // endregion

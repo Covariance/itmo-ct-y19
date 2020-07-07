@@ -92,12 +92,14 @@ public:
       if (this->small && that.small) {
         small_size = that.small_size;
         std::copy_n(that.small_val, small_size, small_val);
+        return *this;
       }
 
       if (this->small && !that.small) {
         small = false;
         that.data->add_ref();
         data = that.data;
+        return *this;
       }
 
       if (!this->small && that.small) {
@@ -109,6 +111,7 @@ public:
         small = that.small;
         small_size = that.small_size;
         std::copy_n(that.small_val, small_size, small_val);
+        return *this;
       }
 
       if (!this->small && !that.small) {
@@ -119,6 +122,7 @@ public:
         }
         that.data->add_ref();
         data = that.data;
+        return *this;
       }
     }
     return *this;
