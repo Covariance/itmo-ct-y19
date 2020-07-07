@@ -26,7 +26,7 @@ public:
     ++counter;
   }
 
-  void rem_ref() {
+  void remove_ref() {
     --counter;
   }
 

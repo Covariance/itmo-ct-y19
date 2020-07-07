@@ -368,7 +368,7 @@ big_integer operator<<(const big_integer& a, int b) {
     carry = tmp;
   }
   if (carry > 0) { result.data.push_back(carry); }
-  result.data.insert(block_shift);
+  result.data.insert_zeros_begin(block_shift);
   return result;
 }
 
@@ -377,7 +377,7 @@ big_integer operator>>(const big_integer& a, int b) {
   size_t block_shift = static_cast<size_t> (b) >> 5u,
     inner_shift = static_cast<size_t> (b) & 31u;
   uint32_t carry = 0, tmp;
-  result.data.erase(block_shift);
+  result.data.erase_from_begin(block_shift);
   for (size_t i = result.data.size(); i != 0; --i) {
     tmp = (result.data[i - 1] << (32 - inner_shift));
     result.data[i - 1] = ((result.data[i - 1] >> inner_shift) | carry);

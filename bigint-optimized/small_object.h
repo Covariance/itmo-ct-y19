@@ -14,7 +14,7 @@
 
 class small_object {
 // region fields
-  static const size_t MAX_SIZE = 2;
+  static constexpr size_t MAX_SIZE = 2;
   bool small;
   size_t small_size;
   union {
@@ -43,7 +43,7 @@ public:
     : small(size <= MAX_SIZE)
     , small_size(size) {
     if (small) {
-      for (size_t i = 0; i != small_size; ++i) { small_val[i] = val; }
+      std::fill(small_val, small_val + small_size, val);
     } else {
       data = new cow_wrapper(std::vector<uint32_t>(size, val));
     }
@@ -66,7 +66,7 @@ public:
         delete data;
         data = nullptr;
       } else {
-        data->rem_ref();
+        data->remove_ref();
       }
     }
   }
@@ -106,7 +106,7 @@ public:
         if (data->unique()) {
           delete data;
         } else {
-          data->rem_ref();
+          data->remove_ref();
         }
         small = that.small;
         small_size = that.small_size;
@@ -118,7 +118,7 @@ public:
         if (data->unique()) {
           delete data;
         } else {
-          data->rem_ref();
+          data->remove_ref();
         }
         that.data->add_ref();
         data = that.data;
@@ -129,6 +129,9 @@ public:
   }
 
   void resize(size_t size, uint32_t val) {
+#ifdef _GLIBCXX_DEBUG
+    assert(small_size <= size);
+#endif
     if (size > MAX_SIZE) {
       desmall();
     }
@@ -176,7 +179,7 @@ public:
     }
   }
 
-  void insert(size_t len) {
+  void insert_zeros_begin(size_t len) {
     if (len + small_size > MAX_SIZE) {
       desmall();
     }
@@ -190,7 +193,7 @@ public:
     }
   }
 
-  void erase(size_t len) {
+  void erase_from_begin(size_t len) {
     if (small) {
       std::move(small_val + len, small_val + small_size, small_val);
     } else {
