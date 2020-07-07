@@ -22,6 +22,7 @@ class small_object {
   };
 // endregion
 
+// region inners
   void uniquify() {
     if (!data->unique()) {
       data = data->extract_unique();
@@ -31,12 +32,13 @@ class small_object {
   void desmall() {
     if (small) {
       uint32_t tmp[MAX_SIZE]{};
-      std::copy_n(small_val, small_size, tmp);
+      std::move(small_val, small_val + small_size, tmp);
       data = new cow_wrapper(0, 0);
       for (size_t i = 0; i != small_size; ++i) { data->push_back(tmp[i]); }
       small = false;
     }
   }
+// endregion
 
 public:
   // region (cons/des)tructors
@@ -107,7 +109,6 @@ public:
         } else {
           data->rem_ref();
         }
-
         small = that.small;
         small_size = that.small_size;
         std::copy_n(that.small_val, small_size, small_val);
@@ -127,46 +128,77 @@ public:
   }
 
   void resize(size_t size, uint32_t val) {
-    desmall();
-    uniquify();
-    data->resize(size, val);
+    if (size > MAX_SIZE) {
+      desmall();
+    }
+    if (small) {
+      while (small_size < size) {
+        small_val[small_size++] = val;
+      }
+    } else {
+      uniquify();
+      data->resize(size, val);
+    }
   }
 
   uint32_t& operator[](size_t i) {
-    desmall();
-    uniquify();
-    return (*data)[i];
+    if (!small) { uniquify(); }
+    return small ? small_val[i] : (*data)[i];
   }
 
   void pop_back() {
-    desmall();
-    uniquify();
-    data->pop_back();
+    if (small) {
+      --small_size;
+    } else {
+      uniquify();
+      data->pop_back();
+    }
   }
 
   void push_back(uint32_t val) {
-    desmall();
-    uniquify();
-    data->push_back(val);
+    if (small_size == MAX_SIZE) {
+      desmall();
+    }
+    if (small) {
+      small_val[small_size++] = val;
+    } else {
+      uniquify();
+      data->push_back(val);
+    }
   }
 
   void reverse() {
-    desmall();
-    uniquify();
-    data->reverse();
+    if (small) {
+      std::reverse(small_val, small_val + small_size);
+    } else {
+      uniquify();
+      data->reverse();
+    }
   }
 
   void insert(size_t len) {
-    desmall();
-    data->insert(len);
+    if (len + small_size > MAX_SIZE) {
+      desmall();
+    }
+    if (small) {
+      std::move(small_val, small_val + small_size, small_val + len);
+      std::fill(small_val, small_val + len, 0);
+      small_size += len;
+    } else {
+      uniquify();
+      data->insert(len);
+    }
   }
 
   void erase(size_t len) {
-    desmall();
-    uniquify();
-    data->erase(len);
+    if (small) {
+      std::move(small_val + len, small_val + small_size, small_val);
+    } else {
+      uniquify();
+      data->erase(len);
+    }
   }
-  // endregion
+// endregion
 };
 
 #endif //BIGINT_SMALL_OBJECT_H
