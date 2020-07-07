@@ -6,10 +6,6 @@
 
 // region inners
 namespace big_integer_inner {
-  static const std::function<uint32_t(uint32_t, uint32_t)>
-    _and = [](uint32_t a, uint32_t b) { return a & b; },
-    _or = [](uint32_t a, uint32_t b) { return a | b; },
-    _xor = [](uint32_t a, uint32_t b) { return a ^ b; };
   static const big_integer ZERO(0), ONE(1), TEN(10);
 }
 
@@ -351,15 +347,15 @@ big_integer operator%(const big_integer& a, const big_integer& b) {
 
 // region bitwise binary operators
 big_integer operator&(const big_integer& a, const big_integer& b) {
-  return bitwise(a, b, big_integer_inner::_and);
+  return bitwise(a, b, std::bit_and<uint32_t>());
 }
 
 big_integer operator|(const big_integer& a, const big_integer& b) {
-  return bitwise(a, b, big_integer_inner::_or);
+  return bitwise(a, b, std::bit_or<uint32_t>());
 }
 
 big_integer operator^(const big_integer& a, const big_integer& b) {
-  return bitwise(a, b, big_integer_inner::_xor);
+  return bitwise(a, b, std::bit_xor<uint32_t>());
 }
 
 big_integer operator<<(const big_integer& a, int b) {
