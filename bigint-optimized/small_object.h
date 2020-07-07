@@ -31,10 +31,7 @@ class small_object {
 
   void desmall() {
     if (small) {
-      uint32_t tmp[MAX_SIZE]{};
-      std::move(small_val, small_val + small_size, tmp);
-      data = new cow_wrapper(0, 0);
-      for (size_t i = 0; i != small_size; ++i) { data->push_back(tmp[i]); }
+      data = new cow_wrapper(std::vector<uint32_t>(small_val, small_val + small_size));
       small = false;
     }
   }
