@@ -6,17 +6,18 @@
 #define BIGINT_COW_WRAPPER_H
 #pragma once
 
+#include <algorithm>
 #include <cstdint>
 #include <utility>
 #include <vector>
-#include <algorithm>
 
 class cow_wrapper {
+// region fields
   size_t counter;
   std::vector<uint32_t> data;
-
+// endregion
 public:
-  // region COW
+// region COW functions
   bool unique() const {
     return counter == 1;
   }
@@ -30,23 +31,19 @@ public:
   }
 
   cow_wrapper* extract_unique() {
-    if (unique()) return this;
+    if (unique()) { return this; }
     counter--;
     return new cow_wrapper(data);
   }
-  // endregion
+// endregion
 
-  // region (cons/des)tructors
-  cow_wrapper(size_t size, uint32_t val)
-    : counter(1)
-    , data(size, val) {}
-
+// region (cons/des)tructors
   explicit cow_wrapper(std::vector<uint32_t> other_data)
     : counter(1)
     , data(std::move(other_data)) {}
-  // endregion
+// endregion
 
-  // region wrapped functions
+// region wrapped functions
   size_t size() const {
     return data.size();
   }
@@ -90,7 +87,7 @@ public:
   friend bool operator==(const cow_wrapper& a, const cow_wrapper& b) {
     return a.data == b.data;
   }
-  // endregion
+// endregion
 };
 
 #endif //BIGINT_COW_WRAPPER_H

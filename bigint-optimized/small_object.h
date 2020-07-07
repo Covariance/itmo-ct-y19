@@ -7,8 +7,9 @@
 #pragma once
 
 #include <algorithm>
-#include <vector>
 #include <cstdint>
+#include <vector>
+
 #include "cow_wrapper.h"
 
 class small_object {
@@ -36,9 +37,8 @@ class small_object {
     }
   }
 // endregion
-
 public:
-  // region (cons/des)tructors
+// region (cons/des)tructors
   small_object(size_t size, uint32_t val)
     : small(size <= MAX_SIZE)
     , small_size(size) {
@@ -70,9 +70,9 @@ public:
       }
     }
   }
-  // endregion
+// endregion
 
-  // region accessors
+// region accessors
   size_t size() const {
     return small ? small_size : data->size();
   }
@@ -84,9 +84,9 @@ public:
   uint32_t back() const {
     return small ? small_val[small_size - 1] : data->back();
   }
-  // endregion
+// endregion
 
-  // region changers
+// region changers
   small_object& operator=(const small_object& that) {
     if (this != &that) {
       if (this->small && that.small) {

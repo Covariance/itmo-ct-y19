@@ -5,11 +5,12 @@
 #define BIGINT_BIG_INTEGER_H
 #pragma once
 
-#include <vector>
-#include <cstdint>
-#include <string>
 #include <algorithm>
+#include <cstdint>
 #include <functional>
+#include <string>
+#include <vector>
+
 #include "small_object.h"
 
 class big_integer {

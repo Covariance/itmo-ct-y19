@@ -1,7 +1,6 @@
 //
 // Created by covariance on 07.05.2020.
 //
-
 #include "big_integer.h"
 
 // region inners
