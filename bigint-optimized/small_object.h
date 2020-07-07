@@ -45,7 +45,6 @@ public:
     , small_size(size) {
     if (small) {
       for (size_t i = 0; i != small_size; ++i) { small_val[i] = val; }
-      desmall();
     } else {
       data = new cow_wrapper(std::vector<uint32_t>(size, val));
     }
@@ -56,7 +55,6 @@ public:
     , small_size(that.small_size) {
     if (small) {
       std::copy_n(that.small_val, small_size, small_val);
-      desmall();
     } else {
       that.data->add_ref();
       data = that.data;
@@ -98,6 +96,7 @@ public:
       }
 
       if (this->small && !that.small) {
+        small = false;
         that.data->add_ref();
         data = that.data;
       }
