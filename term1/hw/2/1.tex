@@ -1,0 +1,95 @@
+\section{}
+	\begin{lstlisting}[language=Python]
+	increment():
+		i = 0
+		while i < k and a[i] == 1:
+			a[i] = 0
+			i++
+		if i < k:
+			a[i] = 1
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=Python]
+	decrement():
+		i = 0
+		while i < k and a[i] == 0:
+			a[i] = 1
+			i++
+		if i < k:
+			a[i] = 0
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=Python]
+	get(i):
+		return a[i]
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=Python]
+	setZero():
+		i = 0
+		while i < k:
+			a[i] = 0
+			i++
+	\end{lstlisting}
+	
+	Предварительно положим, что за единицу времени выполняются операции сравнения, присваивания и арифметические действия.
+	
+	\paragraph{a)}
+	Как нетрудно заметить, если весь массив $\operatorname{a}[]$ заполнен единицами, то истинное время работы $\operatorname{increment}$ будет равняться $1 + 4\cdot k$. Поймём, что в случае, если не весь массив заполнен единицами, а только первые $m < k$ позиций, то время работы будет равно $1 + 4\cdot m + 2 < 1 + 4\cdot k$. 
+	
+	\paragraph{b)}
+	
+	\begin{lemma}
+		В арифметических преобразованиях в этой задаче мы будем пользоваться следующим фактом:
+		$$\sum_{j = 0}^{n} j\cdot 2^j \;=\; 2^{n+1}\cdot (n-1) + 2$$
+	\end{lemma}
+	
+	Поймём, что вариантов, когда первые $m < k$ элементов массива заполнены единицами и $\operatorname{a}[m] = 0$ будет ровно $2^{k-m-1}$, так как способов заполнить каждую из оставшихся позиций ровно $2$. Таким образом, суммарное время работы $\operatorname{increment}$ на всех возможных входных данных будет равняться:
+	
+	\begin{gather*}
+	\left(\sum_{j = 0}^{k-1} 2^{k-j-1} \cdot (3 + 4\cdot j)\right) + 1+4\cdot k \,=\\
+	=\, 3 \cdot (2^k - 1) + 4\cdot \sum_{i = 0}^{k-1} (2^{i} \cdot ((k-1)-i)) + (1 + 4\cdot k) \,=\\
+	=\, (3 + 4\cdot k - 4) \cdot(2^k - 1) - 4\cdot \sum_{i = 0}^{k-1}  2^i\cdot i +  (1 + 4\cdot k) \,=\\
+	=\, (4\cdot k - 1) \cdot(2^k - 1) - 4\cdot(2^k\cdot(k-2) + 2) + (1+4\cdot k) \,=\\
+	=\, 7\cdot 2^k - 6
+	\end{gather*}
+	
+	Так как всего вариантов входных данных $2^k$, то среднее время работы $\operatorname{increment}$ равняется $7 - \frac{6}{2^k} = 7$.
+	
+	\paragraph{c)}
+	
+	Рассмотрим массив, весь заполненный единицами, кроме последнего элемента. Будем поочередно применять к нему операции $\operatorname{increment}$ и $\operatorname{decrement}$. Тогда массив будет менять состояния между вышеописанным и всеми нулями с последним элементом единицей. $\operatorname{increment}$ и $\operatorname{decrement}$ в таком случае будут работать за $1 + 4\cdot k$. Теперь очевидно, что $n$ операций будут выполняться за $\Omega(nk)$. Осталось показать, что они не могут выполняться за большее время. Поймём, что время выполнения $\operatorname{decrement}$ на массиве $\operatorname{a}[]$ равно времени выполнения $\operatorname{increment}$ на инвертированном массиве (каждый элемент $\operatorname{a}[i] = 1 - \operatorname{a}[i]$), таким образом получаем, что $\operatorname{decrement}$ в худшем случае не может работать дольше, чем $\operatorname{increment}$ в худшем случае. Таким образом, показали, что рассмотренный случай действительно наихудший, $\Rightarrow$ время выполнения этих операций в худшем случае равно $\Theta(nk)$.
+	
+	\paragraph{d)}
+	
+	В дополнение к уже имеющимся переменным заведем ещё одну "--- номер самого старшего ненулевого бита нашего числа. Тогда $\operatorname{setZero}$ юудет просто обнулять эту переменную, $\operatorname{increment}$ проходить по элементам массива строго ДО элемента с таким индексом, а $\operatorname{get}()$ будет возвращать ноль, если указывает за старший бит. Ниже приведён псевдокод этих функций.
+	
+	Весьма очевидно, что они все работают за $\mathcal{O}(1)$.
+	\newpage
+	\begin{lstlisting}[language=Python]
+	increment():
+		i = 0
+		while i < top_border and a[i] == 1:
+			a[i] = 0
+			i++
+		if i < top_border:
+			a[i] = 1
+		if i == top_border and top_border < k:
+			a[i] = 1
+			top_border++
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=Python]
+	get(i):
+		if i < top_border:
+			return a[i]
+		else:
+			return 0
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=Python]
+	setZero():
+		top_border = 0
+	\end{lstlisting}
+	
+	

@@ -1,0 +1,26 @@
+\section{} 
+\label{sec:1}
+	\begin{gather*}
+		\frac{n^3}{6} - 7n^2 = \Omega(n^3)
+		\\
+		\Updownarrow
+		\\
+		\exists \, c>0,\, \exists N>0,\: \forall n > N:\: \frac{n^3}{6} - 7n^2 \geq c\cdot n^3
+		\\
+		\text{Подберём нужные значения:}
+		\\
+		\sphericalangle \: c = \frac{1}{12},\: N = 84:
+		\\
+		\frac{n^3}{6} - 7n^2 \geq \frac{1}{12}\cdot n^3
+		\\
+		\Updownarrow
+		n^3 - 84n^2 \geq 0
+		\\
+		\Updownarrow
+		\\
+		n - 84 \geq 0 
+		\\
+		\Updownarrow
+		\\
+		n \geq 84\text{, что верно по выбранной константе.}
+	\end{gather*}
