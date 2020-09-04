@@ -4,18 +4,18 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Scanner;
 
-public class labQ {
+public class Q {
     private final boolean debug = false;
 
     public static void main(String[] args) throws IOException {
-        new labQ().run();
+        new Q().run();
     }
 
     private int m, len, mod;
     private BigInteger n;
     private int[][] matrix;
 
-    private boolean transitable(int a, int b) {
+    private boolean transAble(int a, int b) {
         for (int i = 0; i < m - 1; i++) {
             if ((a & (1 << i)) == (b & (1 << i)) && (a & (2 << i)) == (b & (2 << i)) && (a & (1 << i)) == (a & (2 << i)) / 2) {
                 return false;
@@ -28,7 +28,7 @@ public class labQ {
         int[][] result = new int[len][len];
         for (int i = 0; i < len; i++) {
             for (int j = i; j < len; j++) {
-                result[i][j] = (transitable(i, j)) ? 1 : 0;
+                result[i][j] = (transAble(i, j)) ? 1 : 0;
                 result[j][i] = result[i][j];
             }
         }
