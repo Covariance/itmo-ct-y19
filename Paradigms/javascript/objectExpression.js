@@ -364,6 +364,7 @@ const createParser = function (taker) {
     };
 
     ParserConstructor.prototype = Object.create(Parser.prototype);
+    // :NOTE: constructor
     ParserConstructor.prototype.getOperation = taker;
 
     return ParserConstructor;
