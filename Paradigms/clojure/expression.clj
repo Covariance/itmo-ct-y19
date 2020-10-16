@@ -287,14 +287,14 @@
   )
 
 (defn *next-level [level]
-  (delay
-    (+seqf *get-operation
-           (left level)
-           (+star (+seq
-                    *ws ((nth *operation-by-level level) :op-parser)
-                    *ws (((nth *operation-by-level level) :rule) level))
-                  )))
-  )
+  (let [operation (nth *operation-by-level level)] (delay
+                                                     (+seqf *get-operation
+                                                            (left level)
+                                                            (+star (+seq
+                                                                     *ws (operation :op-parser)
+                                                                     *ws ((operation :rule) level))
+                                                                   )))
+                                                   ))
 
 (def *variable (+map (fn [sym] (get var-to-obj (_in-map sym))) (+char "xyz")))
 (def *number
@@ -310,8 +310,7 @@
 (defn *parse [level]
   (if (not= level max-level)
     (*next-level level)
-    (+or *number *variable *unary *brackets))
-  )
+    (+or *number *variable *unary *brackets)))
 ; my combinators
 
 (def parseObjectInfix (+parser (+seqn 0 *ws (*parse 0) *ws)))
