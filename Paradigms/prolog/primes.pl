@@ -12,7 +12,7 @@
 			assert(comp_precalc(R)),
 			NR is R + X,
 			set(NR, X, MAX).
-	
+
 	check(X, N) :- N > 1, N1 is N - 1,
 			check(X, N1).
 	check(X, N) :- N > 1,
@@ -41,10 +41,10 @@
 
 % main part
 	prime(N) :- not comp_precalc(N), !.
-	composite(N) :- N > 2, not prime(N).
+	composite(N) :- N > 2, comp_precalc(N), !.
 
 	prime_divisors(1, []).
-	prime_divisors(N, DIVS) :- integer(N), N > 1,
+	prime_divisors(N, DIVS) :- integer(N), N > 1, 
 			inner_divisors(N, DIVS).
 	prime_divisors(N, DIVS) :- not(integer(N)), quicksort(DIVS, less, DIVS), length(DIVS, L), L =\= 0,
 			inner_list(N, DIVS).
@@ -58,8 +58,22 @@
 		order([H | T]), !.
 		
 	inner_list(N, []) :- 
-				N is 1.
+				N is 1, !.
 	inner_list(N, [H | T]) :-
 				inner_list(NN, T),
 				N is NN * H.
 % \main part
+
+% mod
+	merge([], B, B) :- !.
+	merge(A, [], A) :- !.
+	merge([H | T1], [H | T2], [H | RES]) :- merge(T1, T2, RES).
+	merge([H1 | T1], [H2 | T2], [H2 | RES]) :- H1 > H2, merge([H1 | T1], T2, RES).
+	merge([H1 | T1], [H2 | T2], [H1 | RES]) :- H1 < H2, merge([H2 | T2], T1, RES).
+			
+	lcm(A, B, LCM) :-
+			prime_divisors(A, LCMA),
+			prime_divisors(B, LCMB),
+			merge(LCMA, LCMB, LCMC),
+			prime_divisors(LCM, LCMC).
+% \mod
