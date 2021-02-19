@@ -3,9 +3,9 @@ package ru.covariance.optimizationmethods.core.methods;
 import java.util.function.DoubleUnaryOperator;
 import ru.covariance.optimizationmethods.core.AbstractIterativeMinimizer;
 
-public class TernaryIterativeMinimizer extends AbstractIterativeMinimizer {
+public class TernaryMinimizer extends AbstractIterativeMinimizer {
 
-  protected TernaryIterativeMinimizer(double left, double right, DoubleUnaryOperator f) {
+  protected TernaryMinimizer(double left, double right, DoubleUnaryOperator f) {
     super(left, right, f);
   }
 
