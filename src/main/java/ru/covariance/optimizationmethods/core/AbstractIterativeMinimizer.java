@@ -18,7 +18,6 @@ public abstract class AbstractIterativeMinimizer extends AbstractMinimizer imple
   @Override
   public double min() {
     while (!this.converged()) {
-      System.out.println(left + " " + right);
       iterate();
     }
     return left + (right - left) / 2;
