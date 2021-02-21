@@ -5,7 +5,7 @@ import ru.covariance.optimizationmethods.core.AbstractIterativeMinimizer;
 
 public class TernaryMinimizer extends AbstractIterativeMinimizer {
 
-  protected TernaryMinimizer(double left, double right, DoubleUnaryOperator f) {
+  public TernaryMinimizer(double left, double right, DoubleUnaryOperator f) {
     super(left, right, f);
   }
 

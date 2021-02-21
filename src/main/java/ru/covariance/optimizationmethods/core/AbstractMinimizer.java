@@ -4,12 +4,14 @@ import java.util.function.DoubleUnaryOperator;
 
 public abstract class AbstractMinimizer {
 
+  public static final double EPSILON = 1e-9;
+
   protected double left;
   protected double right;
 
   protected final DoubleUnaryOperator f;
 
-  protected AbstractMinimizer(double left, double right, DoubleUnaryOperator f) {
+  public AbstractMinimizer(double left, double right, DoubleUnaryOperator f) {
     this.left = left;
     this.right = right;
     this.f = f;
@@ -23,5 +25,9 @@ public abstract class AbstractMinimizer {
 
   public double getRight() {
     return right;
+  }
+
+  public boolean converged() {
+    return left - right < EPSILON;
   }
 }

@@ -13,6 +13,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import ru.covariance.optimizationmethods.core.IterativeDrawer;
+import ru.covariance.optimizationmethods.core.methods.TernaryMinimizer;
 
 public class MainController {
 
@@ -75,6 +77,8 @@ public class MainController {
 
   @FXML
   void initialize() {
+    MainController.registerPage("Ternary", IterativeDrawer.draw(new TernaryMinimizer(-4, 4, x -> x * x)));
+
     choiceMenuVBox.getChildren().addAll(
         PAGES.keySet().stream()
             .map(this::createMenuButton)
