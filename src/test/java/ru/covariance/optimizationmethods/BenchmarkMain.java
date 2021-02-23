@@ -24,7 +24,7 @@ public class BenchmarkMain {
   public static class FunctionState {
     public Random random = new Random(42);
 
-    @Param(value = {"100", "1000", "1000"})
+    @Param(value = {"100", "1000", "10000"})
     public int iterations;
 
     public DoubleUnaryOperator f = BenchmarkMain.f;
