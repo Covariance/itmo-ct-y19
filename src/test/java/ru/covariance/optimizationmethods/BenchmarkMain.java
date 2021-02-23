@@ -111,8 +111,6 @@ public class BenchmarkMain {
   }
 
   public static void main(String[] args) throws IOException {
-    org.openjdk.jmh.Main.main(args);
-
     DoubleUnaryOperatorCounter counter = new DoubleUnaryOperatorCounter(f);
 
     new DichotomyMinimizer(leftBorder, rightBorder, counter, eps).min();
@@ -120,20 +118,22 @@ public class BenchmarkMain {
     counter.resetCounter();
 
     new GoldenRatioMinimizer(leftBorder, rightBorder, counter).min();
-    System.out.println("Dichotomy: " + counter.getCounter());
+    System.out.println("Golden ratio: " + counter.getCounter());
     counter.resetCounter();
 
     new FibonacciMinimizer(leftBorder, rightBorder, counter).min();
-    System.out.println("Dichotomy: " + counter.getCounter());
+    System.out.println("Fibonacci: " + counter.getCounter());
     counter.resetCounter();
 
     new ParabolicMinimizer(leftBorder, rightBorder, counter, eps).min();
-    System.out.println("Dichotomy: " + counter.getCounter());
+    System.out.println("Parabolic: " + counter.getCounter());
     counter.resetCounter();
 
     new BrentMinimizer(leftBorder, rightBorder, counter).min();
-    System.out.println("Dichotomy: " + counter.getCounter());
+    System.out.println("Brent: " + counter.getCounter());
     counter.resetCounter();
+
+    org.openjdk.jmh.Main.main(args);
   }
 }
 
