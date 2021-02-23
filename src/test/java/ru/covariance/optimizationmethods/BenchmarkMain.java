@@ -67,7 +67,7 @@ public class BenchmarkMain {
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(value = 1, warmups = 1)
   public void fibonacciCalculationBenchmark(Blackhole blackhole) {
-    blackhole.consume(new FibonacciMinimizer(leftBorder, rightBorder, f, 20).min());
+    blackhole.consume(new FibonacciMinimizer(leftBorder, rightBorder, f).min());
   }
 
   @Benchmark
@@ -123,7 +123,7 @@ public class BenchmarkMain {
     System.out.println("Dichotomy: " + counter.getCounter());
     counter.resetCounter();
 
-    new FibonacciMinimizer(leftBorder, rightBorder, counter, 20).min();
+    new FibonacciMinimizer(leftBorder, rightBorder, counter).min();
     System.out.println("Dichotomy: " + counter.getCounter());
     counter.resetCounter();
 
