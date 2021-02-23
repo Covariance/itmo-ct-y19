@@ -2,6 +2,7 @@ package ru.covariance.optimizationmethods.app;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -24,9 +25,6 @@ public class MainController {
 
   @FXML
   private VBox choiceMenuVBox;
-
-  @FXML
-  private Button menuHomeButton;
 
   @FXML
   private BorderPane homePage;
@@ -78,25 +76,27 @@ public class MainController {
 
   @FXML
   void initialize() {
+    DoubleUnaryOperator f = x -> x * Math.sin(x) + 2 * Math.cos(x);
+
     VBox dichotomyAnchor = new VBox();
     registerPage("Dichotomy", dichotomyAnchor);
-    new IterativeMinimizerDrawer(DichotomyMinimizer.class, x -> x * x, dichotomyAnchor);
+    new IterativeMinimizerDrawer(DichotomyMinimizer.class, f, dichotomyAnchor);
 
     VBox fibonacciAnchor = new VBox();
     registerPage("Fibonacci", fibonacciAnchor);
-    new IterativeMinimizerDrawer(FibonacciMinimizer.class, x -> x * x, fibonacciAnchor);
+    new IterativeMinimizerDrawer(FibonacciMinimizer.class, f, fibonacciAnchor);
 
     VBox goldenAnchor = new VBox();
     registerPage("Golden Ratio", goldenAnchor);
-    new IterativeMinimizerDrawer(GoldenRatioMinimizer.class, x -> x * x, goldenAnchor);
+    new IterativeMinimizerDrawer(GoldenRatioMinimizer.class, f, goldenAnchor);
 
     VBox parabolicAnchor = new VBox();
     registerPage("Parabolic", parabolicAnchor);
-    new IterativeMinimizerDrawer(ParabolicMinimizer.class, x -> x * x, parabolicAnchor);
+    new IterativeMinimizerDrawer(ParabolicMinimizer.class, f, parabolicAnchor);
 
     VBox brentAnchor = new VBox();
     registerPage("Brent", brentAnchor);
-    new IterativeMinimizerDrawer(BrentMinimizer.class, x -> x * x, brentAnchor);
+    new IterativeMinimizerDrawer(BrentMinimizer.class, f, brentAnchor);
 
     choiceMenuVBox.getChildren().addAll(
         PAGES.keySet().stream()

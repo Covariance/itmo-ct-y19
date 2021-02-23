@@ -3,7 +3,6 @@ module ru.covariance.mythkeeperpackager {
   requires javafx.controls;
   requires javafx.base;
   requires javafx.graphics;
-  requires jmh.core;
 
   opens ru.covariance.optimizationmethods.app to javafx.fxml;
 

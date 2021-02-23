@@ -65,6 +65,10 @@ public class ParabolicMinimizer extends AbstractIterativeMinimizer {
         right = xopt;
       }
     }
+
+    if (mid == left || mid == right) {
+      converged = true;
+    }
   }
 
   @Override
