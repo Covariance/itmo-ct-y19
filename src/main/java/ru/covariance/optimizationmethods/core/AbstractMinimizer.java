@@ -4,7 +4,7 @@ import java.util.function.DoubleUnaryOperator;
 
 public abstract class AbstractMinimizer {
 
-  public static final double EPSILON = 1e-6;
+  private double epsilon = 1e-6;
 
   protected double left;
   protected double right;
@@ -29,7 +29,15 @@ public abstract class AbstractMinimizer {
     return right;
   }
 
+  public double getEpsilon() {
+    return epsilon;
+  }
+
+  public void setEpsilon(double epsilon) {
+    this.epsilon = epsilon;
+  }
+
   public boolean converged() {
-    return right - left < EPSILON;
+    return right - left < epsilon;
   }
 }
