@@ -25,11 +25,13 @@ public class GoldenRatioMinimizer extends AbstractIterativeMinimizer {
       right = x2;
       x2 = x1;
       x1 = left + LEFT_TAU * (right - left);
+      f_x2 = f_x1;
       f_x1 = f.applyAsDouble(x1);
     } else {
       left = x1;
       x1 = x2;
       x2 = left + RIGHT_TAU * (right - left);
+      f_x1 = f_x2;
       f_x2 = f.applyAsDouble(x2);
     }
   }
