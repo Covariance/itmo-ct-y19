@@ -38,11 +38,7 @@ public class BrentMinimizer extends AbstractIterativeMinimizer {
         boolean isParabolaAccepted = false;
         double parabolaMinX = 0;
         if (areDistinct(minX, secondMinX, prevSecondMinX) && areDistinct(minVal, secondMinVal, prevSecondMinVal)) {
-            final ParabolicMinimizer parabolicMinimizer = new ParabolicMinimizer(left, right, f);
-            while (!parabolicMinimizer.converged()) {
-                parabolicMinimizer.iterate();
-            }
-            parabolaMinX = parabolicMinimizer.getMin();
+            parabolaMinX = new ParabolicMinimizer(left, right, f).min();
             if (left - EPSILON < parabolaMinX && parabolaMinX < right + EPSILON && abs(parabolaMinX - minX) < g / 2) {
                 isParabolaAccepted = true;
                 if (parabolaMinX - left < 2 * tol || right - parabolaMinX < 2 * tol) {
@@ -60,39 +56,40 @@ public class BrentMinimizer extends AbstractIterativeMinimizer {
                 prevLen = minX - left;
             }
         }
-
         if (abs(parabolaMinX - minX) < tol) {
             parabolaMinX = minX + Math.signum(parabolaMinX - minX) * tol;
         }
         curLen = abs(parabolaMinX - minX);
 
-        double f_u = super.f.applyAsDouble(parabolaMinX);
-        if (f_u < minVal + EPSILON) {
+        double parabolaMinVal = super.f.applyAsDouble(parabolaMinX);
+        if (parabolaMinVal < minVal + EPSILON) {
             if (parabolaMinX + EPSILON > minX) {
                 left = minX;
             } else {
                 right = minX;
             }
-            parabolaMinX = secondMinX;
+            prevSecondMinX = secondMinX;
             secondMinX = minX;
             minX = parabolaMinX;
             prevSecondMinVal = secondMinVal;
             secondMinVal = minVal;
-            minVal = f_u;
+            minVal = parabolaMinVal;
         } else {
             if (parabolaMinX + EPSILON > minX) {
                 right = parabolaMinX;
             } else {
                 left = parabolaMinX;
             }
-            if (f_u < secondMinVal + EPSILON || abs(secondMinX - minX) < EPSILON) {
+            if (parabolaMinVal < secondMinVal + EPSILON || abs(secondMinX - minX) < EPSILON) {
                 prevSecondMinX = secondMinX;
                 secondMinX = parabolaMinX;
                 prevSecondMinVal = secondMinVal;
-                secondMinVal = f_u;
-            } else if (abs(prevSecondMinX - minX) < EPSILON || abs(prevSecondMinX - secondMinX) < EPSILON) {
+                secondMinVal = parabolaMinVal;
+            } else if (parabolaMinVal < prevSecondMinVal + EPSILON ||
+                    abs(prevSecondMinX - minX) < EPSILON ||
+                    abs(prevSecondMinX - secondMinX) < EPSILON) {
                 prevSecondMinX = parabolaMinX;
-                prevSecondMinVal = f_u;
+                prevSecondMinVal = parabolaMinVal;
             }
         }
     }
