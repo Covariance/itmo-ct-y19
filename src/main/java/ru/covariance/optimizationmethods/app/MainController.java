@@ -10,6 +10,8 @@ import javafx.scene.control.Control;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import ru.covariance.optimizationmethods.core.IterativeMinimizerDrawer;
+import ru.covariance.optimizationmethods.core.methods.DichotomyMinimizer;
 
 public class MainController {
 
@@ -72,10 +74,15 @@ public class MainController {
 
   @FXML
   void initialize() {
+    VBox dichotomyAnchor = new VBox();
+    registerPage("Dichotomy", dichotomyAnchor);
+
     choiceMenuVBox.getChildren().addAll(
         PAGES.keySet().stream()
             .map(this::createMenuButton)
             .collect(Collectors.toList())
     );
+
+    new IterativeMinimizerDrawer(DichotomyMinimizer.class, x->x*x, dichotomyAnchor);
   }
 }

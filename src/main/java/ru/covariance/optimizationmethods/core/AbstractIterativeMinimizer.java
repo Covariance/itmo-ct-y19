@@ -31,8 +31,8 @@ public abstract class AbstractIterativeMinimizer extends AbstractMinimizer imple
     yAxis.setLabel("y");
     LineChart<Number, Number> graphic = new LineChart<>(xAxis, yAxis);
     Series<Number, Number> series = new Series<>();
-    series.getData().add(new Data<>(left, 0));
-    series.getData().add(new Data<>(right, 0));
+    series.getData().add(new Data<>(left, f.applyAsDouble(left)));
+    series.getData().add(new Data<>(right, f.applyAsDouble(right)));
     graphic.getData().add(series);
     return graphic;
   }

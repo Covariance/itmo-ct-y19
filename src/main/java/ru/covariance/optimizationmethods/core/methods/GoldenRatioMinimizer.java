@@ -1,8 +1,7 @@
 package ru.covariance.optimizationmethods.core.methods;
 
-import ru.covariance.optimizationmethods.core.AbstractIterativeMinimizer;
-
 import java.util.function.DoubleUnaryOperator;
+import ru.covariance.optimizationmethods.core.AbstractIterativeMinimizer;
 
 public class GoldenRatioMinimizer extends AbstractIterativeMinimizer {
 
