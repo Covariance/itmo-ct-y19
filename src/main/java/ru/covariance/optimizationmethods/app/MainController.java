@@ -12,6 +12,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import ru.covariance.optimizationmethods.core.IterativeMinimizerDrawer;
 import ru.covariance.optimizationmethods.core.methods.DichotomyMinimizer;
+import ru.covariance.optimizationmethods.core.methods.FibonacciMinimizer;
+import ru.covariance.optimizationmethods.core.methods.GoldenRatioMinimizer;
 import ru.covariance.optimizationmethods.core.methods.ParabolicMinimizer;
 
 public class MainController {
@@ -77,16 +79,24 @@ public class MainController {
   void initialize() {
     VBox dichotomyAnchor = new VBox();
     registerPage("Dichotomy", dichotomyAnchor);
+    new IterativeMinimizerDrawer(DichotomyMinimizer.class, x -> x * x, dichotomyAnchor);
+
+    VBox fibonacciAnchor = new VBox();
+    registerPage("Fibonacci", fibonacciAnchor);
+    new IterativeMinimizerDrawer(FibonacciMinimizer.class, x -> x * x, fibonacciAnchor);
+
+    VBox goldenAnchor = new VBox();
+    registerPage("Golden Ratio", goldenAnchor);
+    new IterativeMinimizerDrawer(GoldenRatioMinimizer.class, x -> x * x, goldenAnchor);
+
     VBox parabolicAnchor = new VBox();
     registerPage("Parabolic", parabolicAnchor);
+    new IterativeMinimizerDrawer(ParabolicMinimizer.class, x -> x * x, parabolicAnchor);
 
     choiceMenuVBox.getChildren().addAll(
         PAGES.keySet().stream()
             .map(this::createMenuButton)
             .collect(Collectors.toList())
     );
-
-    new IterativeMinimizerDrawer(DichotomyMinimizer.class, x -> x * x, dichotomyAnchor);
-    new IterativeMinimizerDrawer(ParabolicMinimizer.class, x -> x * x, parabolicAnchor);
   }
 }

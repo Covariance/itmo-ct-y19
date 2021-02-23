@@ -40,6 +40,8 @@ public class IterativeMinimizerDrawer {
     this.f = f;
     this.anchor = anchor;
 
+    anchor.getChildren().add(new Text(clazz.getSimpleName()));
+
     constructor = (Constructor<? extends AbstractIterativeMinimizer>) Arrays
         .stream(clazz.getConstructors())
         .max(Comparator.comparingInt(Constructor::getParameterCount)).get();
@@ -88,7 +90,7 @@ public class IterativeMinimizerDrawer {
   }
 
   private void reset() {
-    anchor.getChildren().clear();
+    anchor.getChildren().remove(running);
     anchor.getChildren().add(creation);
   }
 
@@ -97,7 +99,7 @@ public class IterativeMinimizerDrawer {
     runningResult.setText("");
     drawingField.getChildren().clear();
     drawingField.getChildren().add(current.display());
-    anchor.getChildren().clear();
+    anchor.getChildren().remove(creation);
     anchor.getChildren().add(running);
   }
 
