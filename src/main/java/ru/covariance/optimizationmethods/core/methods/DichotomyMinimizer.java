@@ -23,4 +23,9 @@ public class DichotomyMinimizer extends AbstractIterativeMinimizer {
       this.left = lp;
     }
   }
+
+  @Override
+  public boolean converged() {
+    return right - left < 2 * delta;
+  }
 }
