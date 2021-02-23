@@ -11,6 +11,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import ru.covariance.optimizationmethods.core.IterativeMinimizerDrawer;
+import ru.covariance.optimizationmethods.core.methods.BrentMinimizer;
 import ru.covariance.optimizationmethods.core.methods.DichotomyMinimizer;
 import ru.covariance.optimizationmethods.core.methods.FibonacciMinimizer;
 import ru.covariance.optimizationmethods.core.methods.GoldenRatioMinimizer;
@@ -92,6 +93,10 @@ public class MainController {
     VBox parabolicAnchor = new VBox();
     registerPage("Parabolic", parabolicAnchor);
     new IterativeMinimizerDrawer(ParabolicMinimizer.class, x -> x * x, parabolicAnchor);
+
+    VBox brentAnchor = new VBox();
+    registerPage("Brent", brentAnchor);
+    new IterativeMinimizerDrawer(BrentMinimizer.class, x -> x * x, brentAnchor);
 
     choiceMenuVBox.getChildren().addAll(
         PAGES.keySet().stream()
