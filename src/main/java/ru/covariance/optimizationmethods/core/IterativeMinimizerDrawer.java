@@ -132,10 +132,18 @@ public class IterativeMinimizerDrawer {
     creation.getChildren().add(hBox);
   }
 
-  private double getParameter(Parameter parameter) {
+  private double getDoubleParameter(Parameter parameter) {
     try {
       // TODO int
       return Double.parseDouble(parameterRetriever.get(parameter).getText());
+    } catch (NumberFormatException ignored) {
+      return 0;
+    }
+  }
+
+  private int getIntParameter(Parameter parameter) {
+    try {
+      return Integer.parseInt(parameterRetriever.get(parameter).getText());
     } catch (NumberFormatException ignored) {
       return 0;
     }
@@ -147,7 +155,11 @@ public class IterativeMinimizerDrawer {
       if (parameter.getType().equals(DoubleUnaryOperator.class)) {
         parameters.add(f);
       } else {
-        parameters.add(getParameter(parameter));
+        if (parameter.getType().equals(int.class)) {
+          parameters.add(getIntParameter(parameter));
+        } else {
+          parameters.add(getDoubleParameter(parameter));
+        }
       }
     }
     try {
