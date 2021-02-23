@@ -3,8 +3,7 @@ package ru.covariance.optimizationmethods.core;
 import java.util.function.DoubleUnaryOperator;
 
 public abstract class AbstractMinimizer {
-
-  private double epsilon = 1e-6;
+  protected double epsilon = 1e-6;
 
   protected double left;
   protected double right;

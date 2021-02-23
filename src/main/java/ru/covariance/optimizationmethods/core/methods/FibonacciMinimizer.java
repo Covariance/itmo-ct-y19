@@ -18,7 +18,7 @@ public class FibonacciMinimizer extends AbstractIterativeMinimizer {
     super(left, right, f);
     double a = 1;
     double b = 1;
-    while ((right - left) > (a + b) * EPSILON) {
+    while ((right - left) > (a + b) * epsilon) {
       double c = b;
       b = a + b;
       a = c;
