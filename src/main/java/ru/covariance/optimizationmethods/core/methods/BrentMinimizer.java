@@ -19,18 +19,30 @@ public class BrentMinimizer extends AbstractIterativeMinimizer {
     }
 
     @Override
+    public double getMin() {
+        return minX;
+    }
+
+    @Override
+    public boolean converged() {
+        double tol = EPSILON * abs(minX) + EPSILON / 10;
+        return abs(minX - (left + right) / 2) + (right - left) / 2 < 2 * tol + EPSILON;
+    }
+
+    @Override
     public void iterate() {
         double g = prevLen;
         prevLen = curLen;
         double tol = EPSILON * abs(minX) + EPSILON / 10;
-        if (abs(minX - (left + right) / 2) + (right - left) / 2 < 2 * tol + EPSILON) {
-            return;
-        }
 
         boolean isParabolaAccepted = false;
         double parabolaMinX = 0;
         if (areDistinct(minX, secondMinX, prevSecondMinX) && areDistinct(minVal, secondMinVal, prevSecondMinVal)) {
-            // TODO: Insert: parabolaMinX = (parabola's approximation)
+            final ParabolicMinimizer parabolicMinimizer = new ParabolicMinimizer(left, right, f);
+            while (!parabolicMinimizer.converged()) {
+                parabolicMinimizer.iterate();
+            }
+            parabolaMinX = parabolicMinimizer.getMin();
             if (left - EPSILON < parabolaMinX && parabolaMinX < right + EPSILON && abs(parabolaMinX - minX) < g / 2) {
                 isParabolaAccepted = true;
                 if (parabolaMinX - left < 2 * tol || right - parabolaMinX < 2 * tol) {
