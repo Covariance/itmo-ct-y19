@@ -19,6 +19,8 @@ public abstract class AbstractMinimizer {
 
   public abstract double min();
 
+  public abstract double getMin();
+
   public double getLeft() {
     return left;
   }

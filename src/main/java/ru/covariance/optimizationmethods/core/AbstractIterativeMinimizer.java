@@ -20,6 +20,11 @@ public abstract class AbstractIterativeMinimizer extends AbstractMinimizer imple
     while (!this.converged()) {
       iterate();
     }
+    return getMin();
+  }
+
+  @Override
+  public double getMin() {
     return left + (right - left) / 2;
   }
 
