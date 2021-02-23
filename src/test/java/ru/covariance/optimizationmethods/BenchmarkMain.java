@@ -13,12 +13,18 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.infra.Blackhole;
+import ru.covariance.optimizationmethods.core.methods.BrentMinimizer;
+import ru.covariance.optimizationmethods.core.methods.DichotomyMinimizer;
+import ru.covariance.optimizationmethods.core.methods.FibonacciMinimizer;
+import ru.covariance.optimizationmethods.core.methods.GoldenRatioMinimizer;
+import ru.covariance.optimizationmethods.core.methods.ParabolicMinimizer;
 
 public class BenchmarkMain {
 
   public static final DoubleUnaryOperator f = x -> x * Math.sin(x) + 2 * Math.cos(x);
   public static final double leftBorder = -6;
   public static final double rightBorder = -4;
+  public static final double eps = 1e-9;
 
   @State(Scope.Benchmark)
   public static class FunctionState {
@@ -31,7 +37,7 @@ public class BenchmarkMain {
   }
 
   @Benchmark
-  @BenchmarkMode(Mode.All)
+  @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(value = 1, warmups = 1)
   public void functionCalculationBenchmark(FunctionState state, Blackhole blackhole) {
@@ -40,8 +46,94 @@ public class BenchmarkMain {
     }
   }
 
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  @Fork(value = 1, warmups = 1)
+  public void dichotomyCalculationBenchmark(Blackhole blackhole) {
+    blackhole.consume(new DichotomyMinimizer(leftBorder, rightBorder, f, eps).min());
+  }
+
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  @Fork(value = 1, warmups = 1)
+  public void goldenRationCalculationBenchmark(Blackhole blackhole) {
+    blackhole.consume(new GoldenRatioMinimizer(leftBorder, rightBorder, f).min());
+  }
+
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  @Fork(value = 1, warmups = 1)
+  public void fibonacciCalculationBenchmark(Blackhole blackhole) {
+    blackhole.consume(new FibonacciMinimizer(leftBorder, rightBorder, f, 20).min());
+  }
+
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  @Fork(value = 1, warmups = 1)
+  public void parabolicCalculationBenchmark(Blackhole blackhole) {
+    blackhole.consume(new ParabolicMinimizer(leftBorder, rightBorder, f, eps).min());
+  }
+
+  @Benchmark
+  @BenchmarkMode(Mode.AverageTime)
+  @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  @Fork(value = 1, warmups = 1)
+  public void brentCalculationBenchmark(Blackhole blackhole) {
+    blackhole.consume(new BrentMinimizer(leftBorder, rightBorder, f).min());
+  }
+
+  public static class DoubleUnaryOperatorCounter implements DoubleUnaryOperator {
+
+    private final DoubleUnaryOperator inner;
+    private int counter = 0;
+
+    public DoubleUnaryOperatorCounter(DoubleUnaryOperator inner) {
+      this.inner = inner;
+    }
+
+    @Override
+    public double applyAsDouble(double operand) {
+      counter++;
+      return inner.applyAsDouble(operand);
+    }
+
+    public int getCounter() {
+      return counter;
+    }
+
+    public void resetCounter() {
+      counter = 0;
+    }
+  }
+
   public static void main(String[] args) throws IOException {
     org.openjdk.jmh.Main.main(args);
+
+    DoubleUnaryOperatorCounter counter = new DoubleUnaryOperatorCounter(f);
+
+    new DichotomyMinimizer(leftBorder, rightBorder, counter, eps).min();
+    System.out.println("Dichotomy: " + counter.getCounter());
+    counter.resetCounter();
+
+    new GoldenRatioMinimizer(leftBorder, rightBorder, counter).min();
+    System.out.println("Dichotomy: " + counter.getCounter());
+    counter.resetCounter();
+
+    new FibonacciMinimizer(leftBorder, rightBorder, counter, 20).min();
+    System.out.println("Dichotomy: " + counter.getCounter());
+    counter.resetCounter();
+
+    new ParabolicMinimizer(leftBorder, rightBorder, counter, eps).min();
+    System.out.println("Dichotomy: " + counter.getCounter());
+    counter.resetCounter();
+
+    new BrentMinimizer(leftBorder, rightBorder, counter).min();
+    System.out.println("Dichotomy: " + counter.getCounter());
+    counter.resetCounter();
   }
 }
 
