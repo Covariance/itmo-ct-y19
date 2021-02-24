@@ -18,6 +18,8 @@ import ru.covariance.optimizationmethods.core.methods.FibonacciMinimizer;
 import ru.covariance.optimizationmethods.core.methods.GoldenRatioMinimizer;
 import ru.covariance.optimizationmethods.core.methods.ParabolicMinimizer;
 
+import static java.lang.Math.cos;
+
 public class MainController {
 
   @FXML
