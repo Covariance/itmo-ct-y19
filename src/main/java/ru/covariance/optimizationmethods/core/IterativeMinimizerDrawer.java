@@ -48,8 +48,8 @@ public class IterativeMinimizerDrawer {
                 .max(Comparator.comparingInt(Constructor::getParameterCount)).get();
 
         creation = new VBox();
-        String[] parameterNames = new String[] {
-            "x1", "x2", "delta"
+        String[] parameterNames = new String[]{
+                "x1", "x2", "delta"
         };
         int parameterIndex = 0;
         for (Parameter parameter : constructor.getParameters()) {
@@ -130,6 +130,16 @@ public class IterativeMinimizerDrawer {
     private void createField(Parameter parameter, String parameterName) {
         HBox hBox = new HBox();
         hBox.getChildren().add(new Text(parameterName + ": "));
+        TextField textField = new TextField();
+        parameterRetriever.put(parameter, textField);
+        hBox.getChildren().add(textField);
+
+        creation.getChildren().add(hBox);
+    }
+
+    private void createField(Parameter parameter) {
+        HBox hBox = new HBox();
+        hBox.getChildren().add(new Text(parameter.getName() + ": "));
         TextField textField = new TextField();
         parameterRetriever.put(parameter, textField);
         hBox.getChildren().add(textField);

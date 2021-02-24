@@ -4,5 +4,4 @@ import javafx.scene.Node;
 
 public interface Displayable {
   Node display();
-  void update();
 }
