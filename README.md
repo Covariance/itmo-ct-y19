@@ -1,2 +1,2 @@
-# optimization-methods
-Lab works for ITMO University optimization methods course/
+# Методы оптимизаций
+Лабораторные работы студентов университета ИТМО: Кузина Максима, Мартынова Павла и Степанова Семена.
