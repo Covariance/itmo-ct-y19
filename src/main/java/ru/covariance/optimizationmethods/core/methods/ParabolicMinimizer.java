@@ -1,6 +1,12 @@
 package ru.covariance.optimizationmethods.core.methods;
 
 import java.util.function.DoubleUnaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+import javafx.scene.Node;
+import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Data;
+import javafx.scene.chart.XYChart.Series;
 import ru.covariance.optimizationmethods.core.AbstractIterativeMinimizer;
 
 public class ParabolicMinimizer extends AbstractIterativeMinimizer {
@@ -69,6 +75,32 @@ public class ParabolicMinimizer extends AbstractIterativeMinimizer {
     if (mid == left || mid == right) {
       converged = true;
     }
+  }
+
+  @Override
+  public Node display() {
+    if (display == null) {
+      display = new Display();
+    } else {
+      display.clearGraphic();
+    }
+
+    DoubleUnaryOperator par = x -> fleft * (x - mid) * (x - right) / (left - mid) / (left - right)
+        + fmid * (x - left) * (x - right) / (mid - left) / (mid - right)
+        + fright * (x - left) * (x - mid) / (right - left) / (right - mid);
+
+    Series<Number, Number> series = new Series<>();
+
+    series.getData().addAll(
+        DoubleStream
+            .iterate(left, x -> x + Display.DELTA_STEP <= right, x -> x + Display.DELTA_STEP)
+            .boxed().map(x -> new Data<Number, Number>(x, par.applyAsDouble(x)))
+            .collect(Collectors.toList())
+    );
+    series.setName("Параболическое приближение");
+
+    display.addSeries(series);
+    return display.getGraphic();
   }
 
   @Override

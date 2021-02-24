@@ -42,7 +42,7 @@ public abstract class AbstractIterativeMinimizer extends AbstractMinimizer imple
 
     private final Series<Number, Number> fseries;
 
-    private static final double DELTA_STEP = 1e-4;
+    public static final double DELTA_STEP = 1e-4;
 
     public Display() {
       xAxis.setLabel("x");
@@ -75,7 +75,7 @@ public abstract class AbstractIterativeMinimizer extends AbstractMinimizer imple
     }
   }
 
-  private Display display;
+  protected Display display;
 
   @Override
   public Node display() {
