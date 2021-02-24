@@ -83,6 +83,7 @@ public class ParabolicMinimizer extends AbstractIterativeMinimizer {
       display = new Display();
     } else {
       display.clearGraphic();
+      display.clearGraphic();
     }
 
     DoubleUnaryOperator par = x -> fleft * (x - mid) * (x - right) / (left - mid) / (left - right)
@@ -100,6 +101,13 @@ public class ParabolicMinimizer extends AbstractIterativeMinimizer {
     series.setName("Параболическое приближение");
 
     display.addSeries(series);
+
+    Series<Number, Number> segment = new Series<>();
+    segment.getData().add(new Data<>(left, f.applyAsDouble(left)));
+    segment.getData().add(new Data<>(right, f.applyAsDouble(right)));
+    segment.setName("Текущее приближение");
+    display.addSeries(segment);
+
     return display.getGraphic();
   }
 
