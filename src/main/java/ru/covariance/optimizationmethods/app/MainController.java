@@ -78,7 +78,7 @@ public class MainController {
 
   @FXML
   void initialize() {
-    DoubleUnaryOperator f = x -> x - x * x * x / 6 + x * x * x * x * x / 120;
+    DoubleUnaryOperator f = x -> x * Math.sin(x) + 2 * Math.cos(x);
 
     VBox dichotomyAnchor = new VBox();
     registerPage("Dichotomy", dichotomyAnchor);
