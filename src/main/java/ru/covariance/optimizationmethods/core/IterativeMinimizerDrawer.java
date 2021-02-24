@@ -134,7 +134,6 @@ public class IterativeMinimizerDrawer {
 
   private double getDoubleParameter(Parameter parameter) {
     try {
-      // TODO int
       return Double.parseDouble(parameterRetriever.get(parameter).getText());
     } catch (NumberFormatException ignored) {
       return 0;

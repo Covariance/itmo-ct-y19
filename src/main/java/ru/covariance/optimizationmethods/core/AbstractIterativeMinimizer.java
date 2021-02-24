@@ -56,20 +56,11 @@ public abstract class AbstractIterativeMinimizer extends AbstractMinimizer imple
 
   @Override
   public Node display() {
-    drawPoints();
-    return display.getGraphic();
-  }
-
-  @Override
-  public void update() {
-    drawPoints();
-  }
-
-  private void drawPoints() {
     display.clearGraphic();
     Series<Number, Number> series = new Series<>();
     series.getData().add(new Data<>(left, f.applyAsDouble(left)));
     series.getData().add(new Data<>(right, f.applyAsDouble(right)));
     display.addSeries(series);
+    return display.getGraphic();
   }
 }
