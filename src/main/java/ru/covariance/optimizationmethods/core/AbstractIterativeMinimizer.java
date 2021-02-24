@@ -1,17 +1,13 @@
 package ru.covariance.optimizationmethods.core;
 
-import java.util.Stack;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
-import javafx.scene.layout.StackPane;
-import ru.covariance.optimizationmethods.core.methods.BrentMinimizer;
 
 public abstract class AbstractIterativeMinimizer extends AbstractMinimizer implements Displayable {
 
