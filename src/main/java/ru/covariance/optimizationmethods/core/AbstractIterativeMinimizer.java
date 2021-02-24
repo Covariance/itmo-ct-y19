@@ -28,17 +28,48 @@ public abstract class AbstractIterativeMinimizer extends AbstractMinimizer imple
     return left + (right - left) / 2;
   }
 
+  protected static class Display {
+    private final NumberAxis xAxis = new NumberAxis();
+    private final NumberAxis yAxis = new NumberAxis();
+    private final LineChart<Number, Number> graphic;
+
+    public Display() {
+      xAxis.setLabel("x");
+      yAxis.setLabel("y");
+      graphic = new LineChart<>(xAxis, yAxis);
+    }
+
+    public void addSeries(Series<Number, Number> series) {
+      graphic.getData().add(series);
+    }
+
+    public void clearGraphic() {
+      graphic.getData().clear();
+    }
+
+    public LineChart<Number, Number> getGraphic() {
+      return graphic;
+    }
+  }
+
+  private final Display display = new Display();
+
   @Override
   public Node display() {
-    NumberAxis xAxis = new NumberAxis();
-    xAxis.setLabel("x");
-    NumberAxis yAxis = new NumberAxis();
-    yAxis.setLabel("y");
-    LineChart<Number, Number> graphic = new LineChart<>(xAxis, yAxis);
+    drawPoints();
+    return display.getGraphic();
+  }
+
+  @Override
+  public void update() {
+    drawPoints();
+  }
+
+  private void drawPoints() {
+    display.clearGraphic();
     Series<Number, Number> series = new Series<>();
     series.getData().add(new Data<>(left, f.applyAsDouble(left)));
     series.getData().add(new Data<>(right, f.applyAsDouble(right)));
-    graphic.getData().add(series);
-    return graphic;
+    display.addSeries(series);
   }
 }
