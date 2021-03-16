@@ -1,4 +1,4 @@
-package ru.covariance.optimizationmethods.core.methods;
+package ru.covariance.optimizationmethods.core.methods.one;
 
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
@@ -45,7 +45,7 @@ public class ParabolicMinimizer extends AbstractDoubleIterativeMinimizer {
       converged = true;
     }
 
-    double fxopt = f.apply(xopt);
+    double fxopt = f.applyAsDouble(xopt);
 
     if (xopt < mid) {
       if (fxopt < fmid) {
@@ -102,8 +102,8 @@ public class ParabolicMinimizer extends AbstractDoubleIterativeMinimizer {
     display.addSeries(series);
 
     Series<Number, Number> segment = new Series<>();
-    segment.getData().add(new Data<>(left, f.apply(left)));
-    segment.getData().add(new Data<>(right, f.apply(right)));
+    segment.getData().add(new Data<>(left, f.applyAsDouble(left)));
+    segment.getData().add(new Data<>(right, f.applyAsDouble(right)));
     segment.setName("Текущее приближение");
     display.addSeries(segment);
 

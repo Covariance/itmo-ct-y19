@@ -66,7 +66,7 @@ public abstract class AbstractDoubleIterativeMinimizer
       fseries.getData().addAll(
           DoubleStream.iterate(left, x -> x + DELTA_STEP <= right, x -> x + DELTA_STEP)
               .boxed()
-              .map(x -> new Data<Number, Number>(x, f.apply(x)))
+              .map(x -> new Data<Number, Number>(x, f.applyAsDouble(x)))
               .collect(Collectors.toList())
       );
       fseries.setName("f");
@@ -96,8 +96,8 @@ public abstract class AbstractDoubleIterativeMinimizer
       display.clearGraphic();
     }
     Series<Number, Number> series = new Series<>();
-    series.getData().add(new Data<>(left, f.apply(left)));
-    series.getData().add(new Data<>(right, f.apply(right)));
+    series.getData().add(new Data<>(left, f.applyAsDouble(left)));
+    series.getData().add(new Data<>(right, f.applyAsDouble(right)));
     series.setName("Текущее приближение");
     display.addSeries(series);
     return display.getGraphic();

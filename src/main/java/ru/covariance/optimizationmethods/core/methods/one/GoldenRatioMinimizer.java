@@ -1,4 +1,4 @@
-package ru.covariance.optimizationmethods.core.methods;
+package ru.covariance.optimizationmethods.core.methods.one;
 
 import java.util.function.DoubleUnaryOperator;
 import ru.covariance.optimizationmethods.core.AbstractDoubleIterativeMinimizer;
@@ -26,13 +26,13 @@ public class GoldenRatioMinimizer extends AbstractDoubleIterativeMinimizer {
       x2 = x1;
       x1 = left + LEFT_TAU * (right - left);
       f_x2 = f_x1;
-      f_x1 = f.apply(x1);
+      f_x1 = f.applyAsDouble(x1);
     } else {
       left = x1;
       x1 = x2;
       x2 = left + RIGHT_TAU * (right - left);
       f_x1 = f_x2;
-      f_x2 = f.apply(x2);
+      f_x2 = f.applyAsDouble(x2);
     }
   }
 }

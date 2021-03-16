@@ -1,11 +1,11 @@
 package ru.covariance.optimizationmethods.core;
 
 import java.util.List;
-import java.util.function.DoubleFunction;
+import java.util.function.ToDoubleFunction;
 
 public abstract class AbstractIterativeMinimizer<T> extends AbstractMinimizer<T> {
 
-  public AbstractIterativeMinimizer(List<T> borders, DoubleFunction<T> f) {
+  public AbstractIterativeMinimizer(List<T> borders, ToDoubleFunction<T> f) {
     super(borders, f);
   }
 

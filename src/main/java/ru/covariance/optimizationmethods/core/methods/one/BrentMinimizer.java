@@ -1,4 +1,4 @@
-package ru.covariance.optimizationmethods.core.methods;
+package ru.covariance.optimizationmethods.core.methods.one;
 
 import ru.covariance.optimizationmethods.core.AbstractDoubleIterativeMinimizer;
 
@@ -39,7 +39,7 @@ public class BrentMinimizer extends AbstractDoubleIterativeMinimizer {
         boolean isParabolaAccepted = false;
         double parabolaMinX = 0;
         if (areDistinct(minX, secondMinX, prevSecondMinX) && areDistinct(minVal, secondMinVal, prevSecondMinVal)) {
-            ParabolicMinimizer parabolicMinimizer = new ParabolicMinimizer(left, right, f::apply);
+            ParabolicMinimizer parabolicMinimizer = new ParabolicMinimizer(left, right, f::applyAsDouble);
             parabolicMinimizer.iterate();
             parabolaMinX = parabolicMinimizer.getMin();
             if (left - epsilon < parabolaMinX && parabolaMinX < right + epsilon
@@ -65,7 +65,7 @@ public class BrentMinimizer extends AbstractDoubleIterativeMinimizer {
         }
         curLen = abs(parabolaMinX - minX);
 
-        double parabolaMinVal = super.f.apply(parabolaMinX);
+        double parabolaMinVal = super.f.applyAsDouble(parabolaMinX);
         if (parabolaMinVal < minVal + epsilon) {
             if (parabolaMinX + epsilon > minX) {
                 left = minX;

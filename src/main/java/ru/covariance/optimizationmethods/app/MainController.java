@@ -12,13 +12,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import ru.covariance.optimizationmethods.core.IterativeMinimizerDrawer;
-import ru.covariance.optimizationmethods.core.methods.BrentMinimizer;
-import ru.covariance.optimizationmethods.core.methods.DichotomyMinimizer;
-import ru.covariance.optimizationmethods.core.methods.FibonacciMinimizer;
-import ru.covariance.optimizationmethods.core.methods.GoldenRatioMinimizer;
-import ru.covariance.optimizationmethods.core.methods.ParabolicMinimizer;
-
-import static java.lang.Math.cos;
+import ru.covariance.optimizationmethods.core.methods.one.BrentMinimizer;
+import ru.covariance.optimizationmethods.core.methods.one.DichotomyMinimizer;
+import ru.covariance.optimizationmethods.core.methods.one.FibonacciMinimizer;
+import ru.covariance.optimizationmethods.core.methods.one.GoldenRatioMinimizer;
+import ru.covariance.optimizationmethods.core.methods.one.ParabolicMinimizer;
 
 public class MainController {
 

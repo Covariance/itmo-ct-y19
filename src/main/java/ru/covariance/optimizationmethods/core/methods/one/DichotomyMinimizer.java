@@ -1,4 +1,4 @@
-package ru.covariance.optimizationmethods.core.methods;
+package ru.covariance.optimizationmethods.core.methods.one;
 
 import ru.covariance.optimizationmethods.core.AbstractDoubleIterativeMinimizer;
 
@@ -17,7 +17,7 @@ public class DichotomyMinimizer extends AbstractDoubleIterativeMinimizer {
   public void iterate() {
     double lp = (left + right - delta) / 2;
     double rp = (left + right + delta) / 2;
-    if (f.apply(lp) < f.apply(rp)) {
+    if (f.applyAsDouble(lp) < f.applyAsDouble(rp)) {
       this.right = rp;
     } else {
       this.left = lp;

@@ -1,4 +1,4 @@
-package ru.covariance.optimizationmethods.core.methods;
+package ru.covariance.optimizationmethods.core.methods.one;
 
 import ru.covariance.optimizationmethods.core.AbstractDoubleIterativeMinimizer;
 
@@ -46,13 +46,13 @@ public class FibonacciMinimizer extends AbstractDoubleIterativeMinimizer {
       x2 = x1;
       x1 = left + F_nk2 / F_n2 * (right_0 - left_0);
       f_x2 = f_x1;
-      f_x1 = f.apply(x1);
+      f_x1 = f.applyAsDouble(x1);
     } else {
       left = x1;
       x1 = x2;
       x2 = left + F_nk1 / F_n2 * (right_0 - left_0);
       f_x1 = f_x2;
-      f_x2 = f.apply(x2);
+      f_x2 = f.applyAsDouble(x2);
     }
   }
 }

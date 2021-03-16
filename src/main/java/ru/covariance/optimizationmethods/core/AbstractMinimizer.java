@@ -1,13 +1,13 @@
 package ru.covariance.optimizationmethods.core;
 
 import java.util.List;
-import java.util.function.DoubleFunction;
+import java.util.function.ToDoubleFunction;
 
 public abstract class AbstractMinimizer<T> {
   protected final List<T> borders;
-  protected final DoubleFunction<T> f;
+  protected final ToDoubleFunction<T> f;
 
-  public AbstractMinimizer(final List<T> borders, DoubleFunction<T> f) {
+  public AbstractMinimizer(final List<T> borders, ToDoubleFunction<T> f) {
     this.borders = borders;
     this.f = f;
   }

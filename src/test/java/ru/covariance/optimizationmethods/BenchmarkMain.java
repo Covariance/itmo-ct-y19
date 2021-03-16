@@ -18,11 +18,11 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.infra.Blackhole;
 import ru.covariance.optimizationmethods.core.AbstractDoubleIterativeMinimizer;
-import ru.covariance.optimizationmethods.core.methods.BrentMinimizer;
-import ru.covariance.optimizationmethods.core.methods.DichotomyMinimizer;
-import ru.covariance.optimizationmethods.core.methods.FibonacciMinimizer;
-import ru.covariance.optimizationmethods.core.methods.GoldenRatioMinimizer;
-import ru.covariance.optimizationmethods.core.methods.ParabolicMinimizer;
+import ru.covariance.optimizationmethods.core.methods.one.BrentMinimizer;
+import ru.covariance.optimizationmethods.core.methods.one.DichotomyMinimizer;
+import ru.covariance.optimizationmethods.core.methods.one.FibonacciMinimizer;
+import ru.covariance.optimizationmethods.core.methods.one.GoldenRatioMinimizer;
+import ru.covariance.optimizationmethods.core.methods.one.ParabolicMinimizer;
 
 public class BenchmarkMain {
 
