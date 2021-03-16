@@ -4,12 +4,11 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import javafx.scene.Node;
-import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
-import ru.covariance.optimizationmethods.core.AbstractIterativeMinimizer;
+import ru.covariance.optimizationmethods.core.AbstractDoubleIterativeMinimizer;
 
-public class ParabolicMinimizer extends AbstractIterativeMinimizer {
+public class ParabolicMinimizer extends AbstractDoubleIterativeMinimizer {
 
   private static final double DEFAULT_DELTA = 1e-6;
 
@@ -46,7 +45,7 @@ public class ParabolicMinimizer extends AbstractIterativeMinimizer {
       converged = true;
     }
 
-    double fxopt = f.applyAsDouble(xopt);
+    double fxopt = f.apply(xopt);
 
     if (xopt < mid) {
       if (fxopt < fmid) {
@@ -103,8 +102,8 @@ public class ParabolicMinimizer extends AbstractIterativeMinimizer {
     display.addSeries(series);
 
     Series<Number, Number> segment = new Series<>();
-    segment.getData().add(new Data<>(left, f.applyAsDouble(left)));
-    segment.getData().add(new Data<>(right, f.applyAsDouble(right)));
+    segment.getData().add(new Data<>(left, f.apply(left)));
+    segment.getData().add(new Data<>(right, f.apply(right)));
     segment.setName("Текущее приближение");
     display.addSeries(segment);
 

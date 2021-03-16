@@ -1,13 +1,13 @@
 package ru.covariance.optimizationmethods.core.methods;
 
-import ru.covariance.optimizationmethods.core.AbstractIterativeMinimizer;
+import ru.covariance.optimizationmethods.core.AbstractDoubleIterativeMinimizer;
 
 import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
 import static java.lang.Math.abs;
 
-public class BrentMinimizer extends AbstractIterativeMinimizer {
+public class BrentMinimizer extends AbstractDoubleIterativeMinimizer {
 
     private final double K = (3.0 - Math.sqrt(5)) / 2;
     private double minX, secondMinX, prevSecondMinX, minVal, secondMinVal, prevSecondMinVal, curLen, prevLen;
@@ -39,7 +39,7 @@ public class BrentMinimizer extends AbstractIterativeMinimizer {
         boolean isParabolaAccepted = false;
         double parabolaMinX = 0;
         if (areDistinct(minX, secondMinX, prevSecondMinX) && areDistinct(minVal, secondMinVal, prevSecondMinVal)) {
-            ParabolicMinimizer parabolicMinimizer = new ParabolicMinimizer(left, right, f);
+            ParabolicMinimizer parabolicMinimizer = new ParabolicMinimizer(left, right, f::apply);
             parabolicMinimizer.iterate();
             parabolaMinX = parabolicMinimizer.getMin();
             if (left - epsilon < parabolaMinX && parabolaMinX < right + epsilon
@@ -65,7 +65,7 @@ public class BrentMinimizer extends AbstractIterativeMinimizer {
         }
         curLen = abs(parabolaMinX - minX);
 
-        double parabolaMinVal = super.f.applyAsDouble(parabolaMinX);
+        double parabolaMinVal = super.f.apply(parabolaMinX);
         if (parabolaMinVal < minVal + epsilon) {
             if (parabolaMinX + epsilon > minX) {
                 left = minX;

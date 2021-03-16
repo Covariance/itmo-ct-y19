@@ -1,10 +1,10 @@
 package ru.covariance.optimizationmethods.core.methods;
 
-import ru.covariance.optimizationmethods.core.AbstractIterativeMinimizer;
+import ru.covariance.optimizationmethods.core.AbstractDoubleIterativeMinimizer;
 
 import java.util.function.DoubleUnaryOperator;
 
-public class DichotomyMinimizer extends AbstractIterativeMinimizer {
+public class DichotomyMinimizer extends AbstractDoubleIterativeMinimizer {
 
   private final double delta;
 
@@ -17,7 +17,7 @@ public class DichotomyMinimizer extends AbstractIterativeMinimizer {
   public void iterate() {
     double lp = (left + right - delta) / 2;
     double rp = (left + right + delta) / 2;
-    if (f.applyAsDouble(lp) < f.applyAsDouble(rp)) {
+    if (f.apply(lp) < f.apply(rp)) {
       this.right = rp;
     } else {
       this.left = lp;

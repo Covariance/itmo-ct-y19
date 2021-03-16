@@ -1,10 +1,10 @@
 package ru.covariance.optimizationmethods.core.methods;
 
-import ru.covariance.optimizationmethods.core.AbstractIterativeMinimizer;
+import ru.covariance.optimizationmethods.core.AbstractDoubleIterativeMinimizer;
 
 import java.util.function.DoubleUnaryOperator;
 
-public class FibonacciMinimizer extends AbstractIterativeMinimizer {
+public class FibonacciMinimizer extends AbstractDoubleIterativeMinimizer {
 
   private final double F_n2;
   private final double left_0;
@@ -46,13 +46,13 @@ public class FibonacciMinimizer extends AbstractIterativeMinimizer {
       x2 = x1;
       x1 = left + F_nk2 / F_n2 * (right_0 - left_0);
       f_x2 = f_x1;
-      f_x1 = f.applyAsDouble(x1);
+      f_x1 = f.apply(x1);
     } else {
       left = x1;
       x1 = x2;
       x2 = left + F_nk1 / F_n2 * (right_0 - left_0);
       f_x1 = f_x2;
-      f_x2 = f.applyAsDouble(x2);
+      f_x2 = f.apply(x2);
     }
   }
 }

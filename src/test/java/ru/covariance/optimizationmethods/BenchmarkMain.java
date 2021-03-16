@@ -17,7 +17,7 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.infra.Blackhole;
-import ru.covariance.optimizationmethods.core.AbstractIterativeMinimizer;
+import ru.covariance.optimizationmethods.core.AbstractDoubleIterativeMinimizer;
 import ru.covariance.optimizationmethods.core.methods.BrentMinimizer;
 import ru.covariance.optimizationmethods.core.methods.DichotomyMinimizer;
 import ru.covariance.optimizationmethods.core.methods.FibonacciMinimizer;
@@ -127,7 +127,7 @@ public class BenchmarkMain {
     }
   }
 
-  public static void calculateIterationValuesForMinimizer(AbstractIterativeMinimizer minimizer,
+  public static void calculateIterationValuesForMinimizer(AbstractDoubleIterativeMinimizer minimizer,
       DoubleUnaryOperatorRecording recorder) {
     recorder.clear();
     double lastLeft = leftBorder;
@@ -155,7 +155,7 @@ public class BenchmarkMain {
 
     {
       System.out.println("Дихотомия, " + eps);
-      AbstractIterativeMinimizer minimizer = new DichotomyMinimizer(leftBorder, rightBorder,
+      AbstractDoubleIterativeMinimizer minimizer = new DichotomyMinimizer(leftBorder, rightBorder,
           recorder, eps);
       minimizer.setEpsilon(eps);
       calculateIterationValuesForMinimizer(minimizer, recorder);
@@ -164,7 +164,7 @@ public class BenchmarkMain {
 
     {
       System.out.println("Золотое сечение, " + eps);
-      AbstractIterativeMinimizer minimizer = new GoldenRatioMinimizer(leftBorder, rightBorder,
+      AbstractDoubleIterativeMinimizer minimizer = new GoldenRatioMinimizer(leftBorder, rightBorder,
           recorder);
       minimizer.setEpsilon(eps);
       calculateIterationValuesForMinimizer(minimizer, recorder);
@@ -173,7 +173,7 @@ public class BenchmarkMain {
 
     {
       System.out.println("Фибоначчи, " + eps);
-      AbstractIterativeMinimizer minimizer = new FibonacciMinimizer(leftBorder, rightBorder,
+      AbstractDoubleIterativeMinimizer minimizer = new FibonacciMinimizer(leftBorder, rightBorder,
           recorder);
       minimizer.setEpsilon(eps);
       calculateIterationValuesForMinimizer(minimizer, recorder);
@@ -182,7 +182,7 @@ public class BenchmarkMain {
 
     {
       System.out.println("Параболы, " + eps);
-      AbstractIterativeMinimizer minimizer = new ParabolicMinimizer(leftBorder, rightBorder,
+      AbstractDoubleIterativeMinimizer minimizer = new ParabolicMinimizer(leftBorder, rightBorder,
           recorder);
       minimizer.setEpsilon(eps);
       calculateIterationValuesForMinimizer(minimizer, recorder);
@@ -191,7 +191,7 @@ public class BenchmarkMain {
 
     {
       System.out.println("Брент, " + eps);
-      AbstractIterativeMinimizer minimizer = new BrentMinimizer(leftBorder, rightBorder,
+      AbstractDoubleIterativeMinimizer minimizer = new BrentMinimizer(leftBorder, rightBorder,
           recorder);
       minimizer.setEpsilon(eps);
       calculateIterationValuesForMinimizer(minimizer, recorder);
@@ -233,7 +233,7 @@ public class BenchmarkMain {
 
     System.out.print("Dichotomy: ");
     for (Double e : epsilons) {
-      AbstractIterativeMinimizer minimizer = new DichotomyMinimizer(leftBorder, rightBorder,
+      AbstractDoubleIterativeMinimizer minimizer = new DichotomyMinimizer(leftBorder, rightBorder,
           counter, e);
       minimizer.setEpsilon(e);
       minimizer.min();
@@ -244,7 +244,7 @@ public class BenchmarkMain {
     System.out.println();
     System.out.print("Golden Ration: ");
     for (Double e : epsilons) {
-      AbstractIterativeMinimizer minimizer = new GoldenRatioMinimizer(leftBorder, rightBorder,
+      AbstractDoubleIterativeMinimizer minimizer = new GoldenRatioMinimizer(leftBorder, rightBorder,
           counter);
       minimizer.setEpsilon(e);
       minimizer.min();
@@ -255,7 +255,7 @@ public class BenchmarkMain {
     System.out.println();
     System.out.print("Fibonacci: ");
     for (Double e : epsilons) {
-      AbstractIterativeMinimizer minimizer = new FibonacciMinimizer(leftBorder, rightBorder,
+      AbstractDoubleIterativeMinimizer minimizer = new FibonacciMinimizer(leftBorder, rightBorder,
           counter);
       minimizer.setEpsilon(e);
       minimizer.min();
@@ -266,7 +266,7 @@ public class BenchmarkMain {
     System.out.println();
     System.out.print("Parabolic: ");
     for (Double e : epsilons) {
-      AbstractIterativeMinimizer minimizer = new ParabolicMinimizer(leftBorder, rightBorder,
+      AbstractDoubleIterativeMinimizer minimizer = new ParabolicMinimizer(leftBorder, rightBorder,
           counter, e);
       minimizer.setEpsilon(e);
       minimizer.min();
@@ -277,7 +277,7 @@ public class BenchmarkMain {
     System.out.println();
     System.out.print("Brent: ");
     for (Double e : epsilons) {
-      AbstractIterativeMinimizer minimizer = new BrentMinimizer(leftBorder, rightBorder, counter);
+      AbstractDoubleIterativeMinimizer minimizer = new BrentMinimizer(leftBorder, rightBorder, counter);
       minimizer.setEpsilon(e);
       minimizer.min();
       System.out.print(counter.getCounter() + " ");

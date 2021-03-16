@@ -19,8 +19,7 @@ import javafx.scene.text.Text;
 
 public class IterativeMinimizerDrawer {
 
-    private final Class<? extends AbstractIterativeMinimizer> clazz;
-    private final Constructor<? extends AbstractIterativeMinimizer> constructor;
+    private final Constructor<? extends AbstractDoubleIterativeMinimizer> constructor;
     private final DoubleUnaryOperator f;
     private final VBox anchor;
 
@@ -32,18 +31,18 @@ public class IterativeMinimizerDrawer {
 
     private final Map<Parameter, TextField> parameterRetriever = new HashMap<>();
 
-    private AbstractIterativeMinimizer current;
+    private AbstractDoubleIterativeMinimizer current;
 
     @SuppressWarnings("unchecked")
-    public IterativeMinimizerDrawer(Class<? extends AbstractIterativeMinimizer> clazz,
+    public IterativeMinimizerDrawer(Class<? extends AbstractDoubleIterativeMinimizer> clazz,
                                     DoubleUnaryOperator f, VBox anchor) {
-        this.clazz = clazz;
         this.f = f;
         this.anchor = anchor;
 
         anchor.getChildren().add(new Text(clazz.getSimpleName()));
 
-        constructor = (Constructor<? extends AbstractIterativeMinimizer>) Arrays
+        //noinspection OptionalGetWithoutIsPresent
+        constructor = (Constructor<? extends AbstractDoubleIterativeMinimizer>) Arrays
                 .stream(clazz.getConstructors())
                 .max(Comparator.comparingInt(Constructor::getParameterCount)).get();
 
@@ -149,7 +148,6 @@ public class IterativeMinimizerDrawer {
 
     private double getDoubleParameter(Parameter parameter) {
         try {
-            // TODO int
             return Double.parseDouble(parameterRetriever.get(parameter).getText());
         } catch (NumberFormatException ignored) {
             return 0;
