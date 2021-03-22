@@ -116,7 +116,7 @@ public class ParabolicMinimizer extends AbstractDoubleIterativeMinimizer {
   }
 
   @Override
-  public double getMin() {
+  public Double getMin() {
     return mid;
   }
 }

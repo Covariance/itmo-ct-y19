@@ -12,9 +12,9 @@ public abstract class AbstractMinimizer<T> {
     this.f = f;
   }
 
-  public abstract double min();
+  public abstract T min();
 
-  public abstract double getMin();
+  public abstract T getMin();
 
   public abstract boolean converged();
 

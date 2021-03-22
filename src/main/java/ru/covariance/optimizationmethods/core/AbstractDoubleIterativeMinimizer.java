@@ -25,7 +25,7 @@ public abstract class AbstractDoubleIterativeMinimizer
   }
 
   @Override
-  public double getMin() {
+  public Double getMin() {
     return left + (right - left) / 2;
   }
 

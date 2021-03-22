@@ -12,7 +12,7 @@ public abstract class AbstractIterativeMinimizer<T> extends AbstractMinimizer<T>
   public abstract void iterate();
 
   @Override
-  public double min() {
+  public T min() {
     while (!this.converged()) {
       iterate();
     }

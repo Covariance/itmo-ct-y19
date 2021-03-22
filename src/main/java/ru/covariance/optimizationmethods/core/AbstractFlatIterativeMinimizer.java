@@ -17,6 +17,7 @@ public abstract class AbstractFlatIterativeMinimizer
   protected double rightX;
   protected double leftY;
   protected double rightY;
+  protected double epsilon = 1e-6;
 
   public AbstractFlatIterativeMinimizer(double leftX, double rightX, double leftY, double rightY,
       ToDoubleFunction<Point2D> f) {

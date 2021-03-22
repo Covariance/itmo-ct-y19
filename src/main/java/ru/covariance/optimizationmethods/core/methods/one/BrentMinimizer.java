@@ -20,7 +20,7 @@ public class BrentMinimizer extends AbstractDoubleIterativeMinimizer {
     }
 
     @Override
-    public double getMin() {
+    public Double getMin() {
         return minX;
     }
 
