@@ -1,42 +1,24 @@
 package ru.covariance.optimizationmethods.core;
 
-import java.util.function.DoubleUnaryOperator;
+import java.util.List;
+import java.util.function.ToDoubleFunction;
 
-public abstract class AbstractMinimizer {
-  protected double epsilon = 1e-6;
+public abstract class AbstractMinimizer<T> {
+  protected final List<T> borders;
+  protected final ToDoubleFunction<T> f;
 
-  protected double left;
-  protected double right;
-
-  protected final DoubleUnaryOperator f;
-
-  public AbstractMinimizer(double left, double right, DoubleUnaryOperator f) {
-    this.left = left;
-    this.right = right;
+  public AbstractMinimizer(final List<T> borders, ToDoubleFunction<T> f) {
+    this.borders = borders;
     this.f = f;
   }
 
-  public abstract double min();
+  public abstract T min();
 
-  public abstract double getMin();
+  public abstract T getMin();
 
-  public double getLeft() {
-    return left;
-  }
+  public abstract boolean converged();
 
-  public double getRight() {
-    return right;
-  }
-
-  public double getEpsilon() {
-    return epsilon;
-  }
-
-  public void setEpsilon(double epsilon) {
-    this.epsilon = epsilon;
-  }
-
-  public boolean converged() {
-    return right - left < epsilon;
+  public List<T> getBorders() {
+    return borders;
   }
 }

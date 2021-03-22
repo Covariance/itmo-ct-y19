@@ -1,15 +1,14 @@
-package ru.covariance.optimizationmethods.core.methods;
+package ru.covariance.optimizationmethods.core.methods.one;
 
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import javafx.scene.Node;
-import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
-import ru.covariance.optimizationmethods.core.AbstractIterativeMinimizer;
+import ru.covariance.optimizationmethods.core.AbstractDoubleIterativeMinimizer;
 
-public class ParabolicMinimizer extends AbstractIterativeMinimizer {
+public class ParabolicMinimizer extends AbstractDoubleIterativeMinimizer {
 
   private static final double DEFAULT_DELTA = 1e-6;
 
@@ -117,7 +116,7 @@ public class ParabolicMinimizer extends AbstractIterativeMinimizer {
   }
 
   @Override
-  public double getMin() {
+  public Double getMin() {
     return mid;
   }
 }

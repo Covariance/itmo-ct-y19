@@ -1,10 +1,10 @@
-package ru.covariance.optimizationmethods.core.methods;
+package ru.covariance.optimizationmethods.core.methods.one;
 
-import ru.covariance.optimizationmethods.core.AbstractIterativeMinimizer;
+import ru.covariance.optimizationmethods.core.AbstractDoubleIterativeMinimizer;
 
 import java.util.function.DoubleUnaryOperator;
 
-public class DichotomyMinimizer extends AbstractIterativeMinimizer {
+public class DichotomyMinimizer extends AbstractDoubleIterativeMinimizer {
 
   private final double delta;
 

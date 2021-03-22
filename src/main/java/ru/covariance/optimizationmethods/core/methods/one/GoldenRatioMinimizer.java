@@ -1,9 +1,9 @@
-package ru.covariance.optimizationmethods.core.methods;
+package ru.covariance.optimizationmethods.core.methods.one;
 
 import java.util.function.DoubleUnaryOperator;
-import ru.covariance.optimizationmethods.core.AbstractIterativeMinimizer;
+import ru.covariance.optimizationmethods.core.AbstractDoubleIterativeMinimizer;
 
-public class GoldenRatioMinimizer extends AbstractIterativeMinimizer {
+public class GoldenRatioMinimizer extends AbstractDoubleIterativeMinimizer {
 
   private final double RIGHT_TAU = (Math.sqrt(5) - 1) / 2;
   private final double LEFT_TAU = 1 - RIGHT_TAU;
