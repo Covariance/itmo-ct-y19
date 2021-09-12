@@ -13,26 +13,31 @@ public class MSQueue implements Queue {
         }
     }
 
-    private final AtomicRef<Node> head;
-    private final AtomicRef<Node> tail;
+    private final AtomicRef<Node> H;
+    private final AtomicRef<Node> T;
 
     public MSQueue() {
-        this.head = this.tail = new AtomicRef<>(new Node(0));
+        Node dummy = new Node(0);
+        this.H = new AtomicRef<>(dummy);
+        this.T = new AtomicRef<>(dummy);
     }
 
     @Override
     public void enqueue(int x) {
-        Node newNode = new Node(x);
+        // Allocate a new node from the free list
+        Node node = new Node(x);
+        // Keep trying until Enqueue is done
         while (true) {
-            Node tail = this.tail.getValue();
-            Node afterTail = tail.next.getValue();
-            if (tail == this.tail.getValue()) {
-                if (afterTail == null) {
-                    if (tail.next.compareAndSet(null, newNode)) {
-                        return;
+            Node tail = T.getValue(); // Read Tail.ptr and Tail.count together
+            Node next = tail.next.getValue(); // Read next ptr and count fields together
+            if (tail == T.getValue()) { // Are tail and next consistent ?
+                if (next == null) { // Was Tail pointing to the last node ?
+                    if (tail.next.compareAndSet(null, node)) { // Try to link node at the end of the linked list
+                        T.compareAndSet(tail, node);
+                        return; // Enqueue is done.Exit loop
                     }
-                } else {
-                    this.tail.compareAndSet(tail, afterTail);
+                } else { // Tail was not pointing to the last node
+                    T.compareAndSet(tail, next); // Try to swing Tail to the next node
                 }
             }
         }
@@ -40,20 +45,20 @@ public class MSQueue implements Queue {
 
     @Override
     public int dequeue() {
-        while (true) {
-            Node head = this.head.getValue();
-            Node tail = this.tail.getValue();
-            Node afterHead = head.next.getValue();
-            if (head == this.head.getValue()) {
-                if (head == tail) {
-                    if (afterHead == null) {
-                        return Integer.MIN_VALUE;
+        while (true) { // Keep trying until Dequeue is done
+            Node head = H.getValue(); // Read Head
+            Node tail = T.getValue(); // Read Tail
+            Node next = head.next.getValue(); // Read Head.ptr–>next
+            if (head == H.getValue() && tail == T.getValue()) { // Are head, tail, and next consistent?
+                if (head == tail) { // Is queue empty or Tail falling behind?
+                    if (next == null) { // Is queue empty ?
+                        return Integer.MIN_VALUE; // Queue is empty, couldn’t dequeue
                     }
-                    this.tail.compareAndSet(tail, afterHead);
-                } else {
-                    int val = afterHead.x;
-                    if (this.head.compareAndSet(head, afterHead)) {
-                        return val;
+                    T.compareAndSet(tail, next); // Tail is falling behind.Try to advance it
+                } else { // No need to deal with Tail
+                    int value = next.x; // Read value before CAS, otherwise another dequeue might free the next node
+                    if (H.compareAndSet(head, next)) { // Try to swing Head to the next node
+                        return value;
                     }
                 }
             }
@@ -62,10 +67,12 @@ public class MSQueue implements Queue {
 
     @Override
     public int peek() {
-        Node curHead = head.getValue();
-        Node next = curHead.next.getValue();
-        if (curHead == tail.getValue())
+        Node head = this.H.getValue();
+        Node tail = this.T.getValue();
+        Node afterHead = head.next.getValue();
+        if (head == tail) {
             return Integer.MIN_VALUE;
-        return next.x;
+        }
+        return afterHead.x;
     }
 }
