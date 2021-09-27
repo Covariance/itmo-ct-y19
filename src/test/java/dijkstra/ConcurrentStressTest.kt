@@ -21,11 +21,6 @@ class ConcurrentStressTest {
         testOnRandomGraphs(100, 1000)
     }
 
-    @Test(timeout = 100_000)
-    fun `test on big graphs`() {
-        testOnRandomGraphs(10000, 100000)
-    }
-
     private fun testOnRandomGraphs(nodes: Int, edges: Int) {
         val r = Random(0)
         repeat(GRAPHS) {
