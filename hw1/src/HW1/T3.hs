@@ -86,28 +86,27 @@ tbigright (Branch _ left a right)
 tleft :: Tree a -> Tree a
 tleft Leaf = Leaf
 tleft tree@(Branch _ Leaf _ _) = tree
-tleft tree@(Branch _ (Branch _ left _ right) _ _)
-  | tdepth left + 1 == tdepth right = tbigright tree
+tleft tree@(Branch _ left _ _)
+  | tdiff left == -1 = tbigright tree
   | otherwise = tsmallright tree
 
 -- | Balance tree that is skewed to the right, O(1)
 tright :: Tree a -> Tree a
 tright Leaf = Leaf
 tright tree@(Branch _ _ _ Leaf) = tree
-tright tree@(Branch _ _ _ (Branch _ left _ right))
-  | tdepth left == tdepth right + 1 = tbigleft tree
+tright tree@(Branch _ _ _ right)
+  | tdiff right == 1 = tbigleft tree
   | otherwise = tsmallleft tree
 
 -- | Balance AVL tree, O(1)
 tbalance :: Tree a -> Tree a
 tbalance Leaf = Leaf
-tbalance tree@(Branch _ left _ right)
-  | leftH == rightH - 2 = tright tree
-  | rightH == leftH - 2 = tleft tree
+tbalance tree
+  | diff == -2 = tright tree
+  | diff == 2  = tleft tree
   | otherwise = tree
   where
-    leftH = tdepth left
-    rightH = tdepth right
+    diff = tdiff tree
 
 -- | Insert an element into the tree, O(log n)
 tinsert :: Ord a => a -> Tree a -> Tree a
