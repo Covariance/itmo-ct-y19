@@ -17,9 +17,10 @@ module HW2.T6
 import Control.Applicative (Alternative (..))
 import Control.Monad (MonadPlus, mfilter)
 import qualified Data.Char
-import Data.Scientific (Scientific, toRealFloat)
+import Data.Scientific (Scientific, scientific, toRealFloat)
 import GHC.Natural (Natural)
 
+import Data.Char (digitToInt)
 import HW2.T1 (Annotated (..), Except (..), mapExcept)
 import HW2.T4 (Expr (..), Prim (Add, Div, Mul, Sub))
 import HW2.T5 (ExceptState (ES))
@@ -110,32 +111,38 @@ pInteger :: Parser String
 pInteger = some pDigit
 
 
--- | Parser that parses arbitrary sequence of digits and removes leading zeros
-pIntegerStripped :: Parser String
-pIntegerStripped = do
-  stripInteger <$> pInteger
-    where
-      stripInteger :: String -> String
-      stripInteger ['0']       = ['0']
-      stripInteger ('0' : val) = val
-      stripInteger other       = other
+-- | Converter that transforms string representation of integer into integer
+stringToInteger :: String -> Integer
+stringToInteger s = foldl step 0 (map (toInteger . digitToInt) s)
+  where
+    step :: Integer -> Integer -> Integer
+    step lead follow = 10 * lead + follow
+
+
+-- | Parser that parses integer value to Expr
+pIntegerToVal :: Parser Expr
+pIntegerToVal = Val . fromInteger . stringToInteger <$> pInteger
 
 
 -- | Parser that parses double in format xyz.abc with possible leading zeros
-pDouble :: Parser String
-pDouble = joinStringParsers pIntegerStripped (joinStringParsers (pExpect '.') pInteger)
-  where
-    joinStringParsers :: Parser String -> Parser String -> Parser String
-    joinStringParsers p1 p2 = fmap (++) p1 <*> p2
+-- | to Expr
+pDouble :: Parser Expr
+pDouble = do
+  integral <- pInteger
+  _ <- pExpect '.'
+  Val . toRealFloat . toScientific integral <$> pInteger
+    where
+      toScientific :: String -> String -> Scientific
+      toScientific int part = scientific (stringToInteger (int ++ part)) (- length part)
 
 
 -- | Parser that parses either integer or double and ignores whitespace around
 pNumber :: Parser Expr
 pNumber = do
   _ <- pSpaces
-  x <- pDouble <|> pIntegerStripped
+  x <- pDouble <|> pIntegerToVal
   _ <- pSpaces
-  pure (Val (toRealFloat (read x :: Scientific)))
+  pure x
 
 
 -- | Parses binary expression that is left-associative
