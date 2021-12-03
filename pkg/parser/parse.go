@@ -9,234 +9,396 @@ import (
 func Parse(input []rune) (*graph.Tree, error) {
 	lex := lexer.NewLexer(input)
 
-	return parseFun(lex)
+	_, err := lex.NextToken()
+	if err != nil {
+		return nil, err
+	}
+
+	return ParseFun(lex)
 }
 
 type Parser func(lexer.Lexer) (*graph.Tree, error)
 
-func parseFun(lex lexer.Lexer) (*graph.Tree, error) {
+func mismatchError(where string, expected string, got lexer.Token) error {
+	return fmt.Errorf("token type mismatch in %s: expected %s, got %s", where, expected, got)
+}
+
+func nextTokenError(where string, nested error) error {
+	return fmt.Errorf("unable to take next token in %s: %w", where, nested)
+}
+
+func nestedError(where string, inner string, nested error) error {
+	return fmt.Errorf("unable to parse %s in %s: %w", inner, where, nested)
+}
+
+func ParseGen(lex lexer.Lexer) (*graph.Tree, error) {
 	tree := graph.Tree{
-		Node:     "Fun",
+		Node:     "Gen",
 		Children: nil,
 	}
 
-	fun, err := lex.NextToken()
-	if err != nil {
-		return nil, fmt.Errorf("unable to parse \"fun\" in Fun: %w", err)
-	}
-	if fun.Type() != lexer.FUN {
-		return nil, fmt.Errorf("expected FUN, got %s", fun)
-	}
+	token := lex.CurrentToken()
 
-	name, err := lex.NextToken()
-	if err != nil {
-		return &tree, fmt.Errorf("unable to parse name in Fun: %w", err)
-	}
-	if name.Type() != lexer.NAME {
-		return nil, fmt.Errorf("expected NAME, got %s", name)
-	}
+	switch token.Type() {
+	case lexer.LGENBRACKET:
+		_, err := lex.NextToken()
+		if err != nil {
+			return nil, nextTokenError("Gen", err)
+		}
 
-	lbr, err := lex.NextToken()
-	if err != nil {
-		return &tree, fmt.Errorf("unable to parse left bracket in Fun: %w", err)
-	}
-	if lbr.Type() != lexer.LBRACKET {
-		return nil, fmt.Errorf("expected LBRACKET, got %s", lbr)
-	}
+		tp, err := ParseType(lex)
+		if err != nil {
+			return nil, nestedError("Gen", "Type", err)
+		}
 
-	argTree, err := parseArgs(lex)
-	if err != nil {
-		return &tree, fmt.Errorf("unable to parse Args in Fun: %w", err)
-	}
+		tok := lex.CurrentToken()
+		if tok.Type() != lexer.RGENBRACKET {
+			return nil, mismatchError("Gen", "RGENBRACKET", tok)
+		}
 
-	rbr := lex.CurrentToken()
-	if rbr.Type() != lexer.RBRACKET {
-		return nil, fmt.Errorf("expected RBRACKET, got %s", rbr)
-	}
+		_, err = lex.NextToken()
+		if err != nil {
+			return nil, nextTokenError("Gen", err)
+		}
 
-	ftypeTree, err := parseFType(lex)
-	if err != nil {
-		return &tree, fmt.Errorf("unable to parse FType in Fun: %w", err)
-	}
-
-	eps := lex.CurrentToken()
-	if eps.Type() != lexer.EPS {
-		return nil, fmt.Errorf("expected EPS, got %s", eps)
-	}
-
-	tree.Children = []*graph.Tree{
-		{Node: "fun", Children: nil},
-		{Node: fmt.Sprintf("name: %s", name.Contents()), Children: nil},
-		{Node: "(", Children: nil},
-		argTree,
-		{Node: ")", Children: nil},
-		ftypeTree,
-		{Node: "eps", Children: nil},
+		tree.Children = []*graph.Tree{
+			{Node: "<", Children: nil},
+			tp,
+			{Node: ">", Children: nil},
+		}
+	default:
+		tree.Children = []*graph.Tree{
+			{Node: "eps", Children: nil},
+		}
 	}
 
 	return &tree, nil
 }
 
-func parseFType(lex lexer.Lexer) (*graph.Tree, error) {
+func ParseType(lex lexer.Lexer) (*graph.Tree, error) {
+	tree := graph.Tree{
+		Node:     "Type",
+		Children: nil,
+	}
+
+	token := lex.CurrentToken()
+	if token.Type() != lexer.NAME {
+		return nil, mismatchError("Type", "NAME", token)
+	}
+
+	_, err := lex.NextToken()
+	if err != nil {
+		return nil, nextTokenError("Type", err)
+	}
+
+	gen, err := ParseGen(lex)
+	if err != nil {
+		return nil, nestedError("Type", "Gen", err)
+	}
+
+	tree.Children = []*graph.Tree{
+		{Node: "type: " + token.Contents(), Children: nil},
+		gen,
+	}
+
+	return &tree, nil
+}
+
+func ParseFType(lex lexer.Lexer) (*graph.Tree, error) {
 	tree := graph.Tree{
 		Node:     "FType",
 		Children: nil,
 	}
 
-	next, err := lex.NextToken()
-	if err != nil {
-		return nil, fmt.Errorf("unable to parse FType: %w", err)
-	}
-
-	switch next.Type() { //nolint:exhaustive
-	case lexer.EPS:
-		return &tree, nil
-
+	token := lex.CurrentToken()
+	switch token.Type() {
 	case lexer.DOUBLEDOT:
-		tp, err := lex.NextToken()
+		_, err := lex.NextToken()
 		if err != nil {
-			return nil, fmt.Errorf("unable to parse NAME in FType: %w", err)
+			return nil, nextTokenError("FType", err)
 		}
-		if tp.Type() != lexer.NAME {
-			return nil, fmt.Errorf("expected NAME, got %s", tp)
+
+		tp, err := ParseType(lex)
+		if err != nil {
+			return nil, nestedError("FType", "Type", err)
 		}
+
 		tree.Children = []*graph.Tree{
 			{Node: ":", Children: nil},
-			{Node: fmt.Sprintf("type: %s", tp.Contents()), Children: nil},
+			tp,
 		}
-
-		if token := lex.CurrentToken(); token.Type() != lexer.EPS {
-			if _, err := lex.NextToken(); err != nil {
-				return nil, fmt.Errorf("cannot parse follow in FType: %w", err)
-			}
-		}
-
-		return &tree, nil
-
 	default:
-		return nil, fmt.Errorf("expected EPS or DOUBLEDOT, got %s", next)
+		tree.Children = []*graph.Tree{
+			{Node: "eps", Children: nil},
+		}
 	}
+
+	return &tree, nil
 }
 
-func parseArgs(lex lexer.Lexer) (*graph.Tree, error) {
+func ParseArg(lex lexer.Lexer) (*graph.Tree, error) {
+	tree := graph.Tree{
+		Node:     "Arg",
+		Children: nil,
+	}
+
+	name := lex.CurrentToken()
+	if name.Type() != lexer.NAME {
+		return nil, mismatchError("Arg", "NAME", name)
+	}
+
+	doubledot, err := lex.NextToken()
+	if err != nil {
+		return nil, nextTokenError("Arg", err)
+	}
+	if doubledot.Type() != lexer.DOUBLEDOT {
+		return nil, mismatchError("Arg", "DOUBLEDOT", doubledot)
+	}
+
+	_, err = lex.NextToken()
+	if err != nil {
+		return nil, nextTokenError("Arg", err)
+	}
+
+	tp, err := ParseType(lex)
+	if err != nil {
+		return nil, nestedError("Arg", "Type", err)
+	}
+
+	tree.Children = []*graph.Tree{
+		{Node: "name: " + name.Contents(), Children: nil},
+		{Node: ":", Children: nil},
+		tp,
+	}
+
+	return &tree, nil
+}
+
+func ParseDefArg(lex lexer.Lexer) (*graph.Tree, error) {
+	tree := graph.Tree{
+		Node:     "DefArg",
+		Children: nil,
+	}
+
+	token := lex.CurrentToken()
+
+	switch token.Type() {
+	case lexer.COMA:
+		_, err := lex.NextToken()
+		if err != nil {
+			return nil, nextTokenError("DefArg", err)
+		}
+
+		arg, err := ParseArg(lex)
+		if err != nil {
+			return nil, nestedError("DefArg", "Arg", err)
+		}
+
+		eq := lex.CurrentToken()
+		if eq.Type() != lexer.EQUALS {
+			return nil, mismatchError("DefArg", "EQUALS", eq)
+		}
+
+		val, err := lex.NextToken()
+		if err != nil {
+			return nil, nextTokenError("DefArg", err)
+		}
+		if val.Type() != lexer.NAME {
+			return nil, mismatchError("DefArg", "NAME", val)
+		}
+
+		_, err = lex.NextToken()
+		if err != nil {
+			return nil, nextTokenError("DefArg", err)
+		}
+
+		nested, err := ParseDefArg(lex)
+		if err != nil {
+			return nil, nestedError("DefArg", "DefArg", err)
+		}
+
+		tree.Children = []*graph.Tree{
+			{Node: ",", Children: nil},
+			arg,
+			{Node: "=", Children: nil},
+			{Node: "value: " + val.Contents(), Children: nil},
+			nested,
+		}
+
+	default:
+		tree.Children = []*graph.Tree{
+			{Node: "eps", Children: nil},
+		}
+	}
+
+	return &tree, nil
+}
+
+func ParseTail(lex lexer.Lexer) (*graph.Tree, error) {
+	tree := graph.Tree{
+		Node:     "Tail",
+		Children: nil,
+	}
+
+	token := lex.CurrentToken()
+
+	switch token.Type() {
+	case lexer.EQUALS:
+		val, err := lex.NextToken()
+		if err != nil {
+			return nil, nextTokenError("Tail", err)
+		}
+		if val.Type() != lexer.NAME {
+			return nil, mismatchError("Tail", "NAME", val)
+		}
+
+		_, err = lex.NextToken()
+		if err != nil {
+			return nil, nextTokenError("Tail", err)
+		}
+
+		defArg, err := ParseDefArg(lex)
+		if err != nil {
+			return nil, nestedError("Tail", "DefArg", err)
+		}
+
+		tree.Children = []*graph.Tree{
+			{Node: "=", Children: nil},
+			{Node: "value: " + val.Contents(), Children: nil},
+			defArg,
+		}
+
+	case lexer.COMA:
+		_, err := lex.NextToken()
+		if err != nil {
+			return nil, nextTokenError("Tail", err)
+		}
+
+		arg, err := ParseArg(lex)
+		if err != nil {
+			return nil, nestedError("Tail", "Arg", err)
+		}
+
+		tail, err := ParseTail(lex)
+		if err != nil {
+			return nil, nestedError("Tail", "Tail", err)
+		}
+
+		tree.Children = []*graph.Tree{
+			{Node: ",", Children: nil},
+			arg,
+			tail,
+		}
+
+	default:
+		tree.Children = []*graph.Tree{
+			{Node: "eps", Children: nil},
+		}
+	}
+
+	return &tree, nil
+}
+
+func ParseArgs(lex lexer.Lexer) (*graph.Tree, error) {
 	tree := graph.Tree{
 		Node:     "Args",
 		Children: nil,
 	}
 
-	next, err := lex.NextToken()
-	if err != nil {
-		return nil, fmt.Errorf("unable to parse Args: %w", err)
-	}
+	token := lex.CurrentToken()
 
-	switch next.Type() { //nolint:exhaustive
-	case lexer.RBRACKET:
-		return &tree, nil
-
+	switch token.Type() {
 	case lexer.NAME:
-		dbldot, err := lex.NextToken()
+		arg, err := ParseArg(lex)
 		if err != nil {
-			return nil, fmt.Errorf("unable to parse DOUBLEDOT in Args: %w", err)
-		}
-		if dbldot.Type() != lexer.DOUBLEDOT {
-			return nil, fmt.Errorf("expected DOUBLEDOT, got %s", dbldot)
+			return nil, nestedError("Args", "Arg", err)
 		}
 
-		tp, err := lex.NextToken()
+		tail, err := ParseTail(lex)
 		if err != nil {
-			return nil, fmt.Errorf("unable to parse NAME in Args: %w", err)
-		}
-		if tp.Type() != lexer.NAME {
-			return nil, fmt.Errorf("expected NAME, got %s", tp)
-		}
-
-		argTail, err := parseArgTail(lex)
-		if err != nil {
-			return nil, fmt.Errorf("unable to parse ArgTail in Args: %w", err)
+			return nil, nestedError("Args", "Tail", err)
 		}
 
 		tree.Children = []*graph.Tree{
-			{Node: fmt.Sprintf("name: %s", next.Contents()), Children: nil},
-			{Node: ":", Children: nil},
-			{Node: fmt.Sprintf("type: %s", tp.Contents()), Children: nil},
-			argTail,
+			arg,
+			tail,
 		}
-
-		if token := lex.CurrentToken(); token.Type() != lexer.RBRACKET {
-			if _, err := lex.NextToken(); err != nil {
-				return nil, fmt.Errorf("cannot parse follow in Args: %w", err)
-			}
-		}
-
-		return &tree, nil
 
 	default:
-		return nil, fmt.Errorf("expected RBRACKET or NAME, got %s", next)
+		tree.Children = []*graph.Tree{
+			{Node: "eps", Children: nil},
+		}
 	}
+
+	return &tree, nil
 }
 
-func parseArgTail(lex lexer.Lexer) (*graph.Tree, error) {
+func ParseFun(lex lexer.Lexer) (*graph.Tree, error) {
 	tree := graph.Tree{
-		Node:     "ArgTail",
+		Node:     "Fun",
 		Children: nil,
 	}
 
-	next, err := lex.NextToken()
+	fun := lex.CurrentToken()
+	if fun.Type() != lexer.FUN {
+		return nil, mismatchError("Fun", "FUN", fun)
+	}
+
+	name, err := lex.NextToken()
 	if err != nil {
-		return nil, fmt.Errorf("unable to parse ArgTail: %w", err)
+		return nil, nextTokenError("Fun", err)
+	}
+	if name.Type() != lexer.NAME {
+		return nil, mismatchError("Fun", "NAME", name)
 	}
 
-	switch next.Type() { //nolint:exhaustive
-	case lexer.RBRACKET:
-		return &tree, nil
-
-	case lexer.COMA:
-		name, err := lex.NextToken()
-		if err != nil {
-			return nil, fmt.Errorf("unable to parse NAME in ArgTail: %w", err)
-		}
-		if name.Type() != lexer.NAME {
-			return nil, fmt.Errorf("expected NAME, got %s", name)
-		}
-
-		dbldot, err := lex.NextToken()
-		if err != nil {
-			return nil, fmt.Errorf("unable to parse DOUBLEDOT in ArgTail: %w", err)
-		}
-		if dbldot.Type() != lexer.DOUBLEDOT {
-			return nil, fmt.Errorf("expected DOUBLEDOT, got %s", dbldot)
-		}
-
-		tp, err := lex.NextToken()
-		if err != nil {
-			return nil, fmt.Errorf("unable to parse NAME in ArgTail: %w", err)
-		}
-		if tp.Type() != lexer.NAME {
-			return nil, fmt.Errorf("expected NAME, got %s", tp)
-		}
-
-		argTail, err := parseArgTail(lex)
-		if err != nil {
-			return nil, fmt.Errorf("unable to parse ArgTail in ArgTail: %w", err)
-		}
-
-		tree.Children = []*graph.Tree{
-			{Node: ",", Children: nil},
-			{Node: fmt.Sprintf("name: %s", name.Contents()), Children: nil},
-			{Node: ":", Children: nil},
-			{Node: fmt.Sprintf("type: %s", tp.Contents()), Children: nil},
-			argTail,
-		}
-
-		if token := lex.CurrentToken(); token.Type() != lexer.RBRACKET {
-			if _, err := lex.NextToken(); err != nil {
-				return nil, fmt.Errorf("cannot parse follow in ArgTail: %w", err)
-			}
-		}
-
-		return &tree, nil
-
-	default:
-		return nil, fmt.Errorf("expected RBRACKET or COMA, got %s", next)
+	lbr, err := lex.NextToken()
+	if err != nil {
+		return nil, nextTokenError("Fun", err)
 	}
+	if lbr.Type() != lexer.LBRACKET {
+		return nil, mismatchError("Fun", "LBRACKET", lbr)
+	}
+
+	_, err = lex.NextToken()
+	if err != nil {
+		return nil, nextTokenError("Fun", err)
+	}
+
+	args, err := ParseArgs(lex)
+	if err != nil {
+		return nil, nestedError("Fun", "Args", err)
+	}
+
+	rbr := lex.CurrentToken()
+	if rbr.Type() != lexer.RBRACKET {
+		return nil, mismatchError("Fun", "RBRACKET", rbr)
+	}
+
+	_, err = lex.NextToken()
+	if err != nil {
+		return nil, nextTokenError("Fun", err)
+	}
+
+	ftp, err := ParseFType(lex)
+	if err != nil {
+		return nil, nestedError("Fun", "FType", err)
+	}
+
+	eps := lex.CurrentToken()
+	if eps.Type() != lexer.EPS {
+		return nil, mismatchError("Fun", "EPS", eps)
+	}
+
+	tree.Children = []*graph.Tree{
+		{Node: "fun", Children: nil},
+		{Node: "name: " + name.Contents(), Children: nil},
+		{Node: "(", Children: nil},
+		args,
+		{Node: ")", Children: nil},
+		ftp,
+		{Node: "eps", Children: nil},
+	}
+
+	return &tree, nil
 }

@@ -3,6 +3,7 @@ package graph
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/goccy/go-graphviz"
 	"github.com/goccy/go-graphviz/cgraph"
@@ -23,6 +24,18 @@ func (r *Tree) Equals(other *Tree) bool {
 		}
 	}
 	return true
+}
+
+func (r *Tree) stringWithTabs(tabs int) string {
+	res := strings.Repeat("\t", tabs) + r.Node + "\n"
+	for _, child := range r.Children {
+		res += child.stringWithTabs(tabs + 1)
+	}
+	return res
+}
+
+func (r *Tree) String() string {
+	return r.stringWithTabs(0)
 }
 
 func (r *Tree) toGraphvizDfs(graph *cgraph.Graph, id uint64) (*cgraph.Node, uint64, error) {

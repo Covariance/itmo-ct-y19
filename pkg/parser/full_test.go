@@ -7,7 +7,7 @@ import (
 )
 
 func TestNoParseFun(t *testing.T) {
-	Parser(parseFun).testTableFails(t, map[string]string{
+	Parser(ParseFun).testTableFails(t, map[string]string{
 		"empty input":                  "   ",
 		"invalid fun name":             "fun 1name() : Unit",
 		"invalid args declaration":     "fun name(arg1 : type, arg2 type) : Unit",
@@ -22,7 +22,7 @@ func TestNoParseFun(t *testing.T) {
 }
 
 func TestParseFun(t *testing.T) {
-	Parser(parseFun).testTableSuccess(t, map[string]test{
+	Parser(ParseFun).testTableSuccess(t, map[string]test{
 		"simple function": {"fun funName(argName : argType, otherName : otherType) : returnType", graph.Tree{
 			Node: "Fun",
 			Children: []*graph.Tree{
@@ -199,6 +199,7 @@ func TestParseFun(t *testing.T) {
 								}},
 							}},
 							{Node: "=", Children: nil},
+							{Node: "value: fed", Children: nil},
 							{Node: "DefArg", Children: []*graph.Tree{
 								{Node: "eps", Children: nil},
 							}},
