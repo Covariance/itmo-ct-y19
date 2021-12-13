@@ -1,14 +1,14 @@
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.14.4")
+        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.17.0")
     }
 }
 
 plugins {
-    kotlin("jvm") version "1.4.0"
+    kotlin("jvm") version "1.6.0"
     java
 }
 
@@ -24,16 +24,14 @@ group = "ru.ifmo.mpp"
 version = "1.0-SNAPSHOT"
 
 repositories {
-    jcenter()
-    maven("https://kotlin.bintray.com/kotlinx/")
-    maven("https://dl.bintray.com/devexperts/Maven")
+    mavenCentral()
 }
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
     testImplementation(kotlin("test-junit"))
-    testImplementation("org.jetbrains.kotlinx:lincheck:2.11")
+    testImplementation("org.jetbrains.kotlinx:lincheck:2.14.1")
 }
 
 sourceSets["main"].java.setSrcDirs(listOf("src"))
