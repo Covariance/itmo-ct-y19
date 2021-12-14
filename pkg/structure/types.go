@@ -4,8 +4,12 @@ import (
 	"strings"
 )
 
+type Entity interface {
+	String() string
+}
+
 type Program struct {
-	Content []*ProgramComponent
+	Content []ProgramComponent
 }
 
 func (r *Program) String() string {
@@ -19,18 +23,14 @@ func (r *Program) String() string {
 	return sb.String()
 }
 
-type ProgramComponent struct{}
-
-func (r *ProgramComponent) String() string {
-	panic("abstract class")
+type ProgramComponent interface {
+	Entity
 }
 
 type Function struct {
-	ProgramComponent
-
 	Name   string
 	Args   []string
-	Body   []*Line
+	Body   []Line
 	Return Expr
 }
 
@@ -40,7 +40,7 @@ func (r *Function) String() string {
 	sb.WriteString("def ")
 	sb.WriteString(r.Name)
 	sb.WriteString("(")
-	sb.WriteString(strings.Join(r.Args, ", "))
+	sb.WriteString(strings.Join(r.Args, ","))
 	sb.WriteString("):\n")
 
 	for _, line := range r.Body {
@@ -49,23 +49,22 @@ func (r *Function) String() string {
 		sb.WriteString("\n")
 	}
 
+	if r.Return != nil {
+		sb.WriteString("\t")
+		sb.WriteString("return ")
+		sb.WriteString(r.Return.String())
+	}
+
 	return sb.String()
 }
 
-type Line struct {
+type Line interface {
 	ProgramComponent
 }
 
-func (r *Line) String() string {
-	panic("abstract class")
-}
-
 type FunctionCall struct {
-	Line
-	Expr
-
 	Name string
-	Args []*Expr
+	Args []Expr
 }
 
 func (r *FunctionCall) String() string {
@@ -75,36 +74,31 @@ func (r *FunctionCall) String() string {
 		args = append(args, arg.String())
 	}
 
-	return r.Name + "(" + strings.Join(args, ", ") + ")"
+	return r.Name + "(" + strings.Join(args, ",") + ")"
 }
 
 type Assignment struct {
-	Line
 	Name     string
 	Assignee Expr
 }
 
 func (r *Assignment) String() string {
-	return r.Name + " = " + r.Assignee.String()
+	return r.Name + "=" + r.Assignee.String()
 }
 
-type Expr struct{}
-
-func (r *Expr) String() string {
-	panic("abstract class")
+type Expr interface {
+	Entity
 }
 
 type Constant struct {
-	Expr
 	Content string
 }
 
 func (r *Constant) String() string {
-	return "\"" + r.Content + "\""
+	return "'" + r.Content + "'"
 }
 
 type Name struct {
-	Expr
 	Name string
 }
 

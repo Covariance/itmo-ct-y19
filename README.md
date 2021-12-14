@@ -18,14 +18,14 @@
 Валидной программой в таком подмножестве, будет, например:
 
 ```python
-def logged_read():
-    a = input()
-    print("read:", a)
+def logged():
+    a=input()
+    print('read',a)
     return a
 
-a = logged_read()
-b = logged_read()
-print(a, b)
+a=logged()
+b=logged()
+print(a,b)
 ```
 
 ## Грамматика
@@ -49,3 +49,18 @@ Expr         -> FunctionCall | "'" string constant "'" | name
 Два нетерминала здесь - `break` и `name` обозначают несколько переносов строки и валидное имя переменной соответственно.
 
 ## Реализация
+Задание выполнелно на Go 1.17 с помощью генератора парсеров goyacc, являющегося портом yacc на Go. 
+
+## Пример
+
+Для вышеуказанного фрагмента кода обфускатор может вывести, например:
+```python
+def 1oI010():
+    loloI0=input()
+    print('read',loloI0)
+    return loloI0
+loloI0=1oI010()
+10lOIO='lOIO1O'
+I01oIo=1oI010()
+print(loloI0,I01oIo)
+```
