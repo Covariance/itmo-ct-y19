@@ -49,36 +49,36 @@ func setResult(lex yyLexer, result structure.Program) {
 %%
 File : Program BREAK
 		{
-			log.Println("setting result of File")
+			if yyDebug > 0 { log.Println("setting result of File") }
 			reverse($1)
 			setResult(yylex, structure.Program{Content: $1})
 		}
      | Program
 		{
-			log.Println("setting result of File")
+			if yyDebug > 0 { log.Println("setting result of File") }
 			reverse($1)
 			setResult(yylex, structure.Program{Content: $1})
 		}
 
 Program : Function BREAK Program
 		{
-			log.Println("appending Function to Program")
+			if yyDebug > 0 { log.Println("appending Function to Program") }
 			$$ = append($3, $1)
 		}
         | Line BREAK Program
         	{
-        		log.Println("appending Line to Program")
+        		if yyDebug > 0 { log.Println("appending Line to Program") }
         		$$ = append($3, $1)
         	}
         | /* empty rule */
         	{
-        		log.Println("empty Program")
+        		if yyDebug > 0 { log.Println("empty Program") }
         		$$ = []structure.ProgramComponent{}
         	}
 
 Function : DEF NAME '(' Args ')' ':' BREAK TAB FunctionBody
 		{
-			log.Println("parsing Function")
+			if yyDebug > 0 { log.Println("parsing Function") }
 			reverse($4)
 			reverse($9.Body)
 			$$ = &structure.Function{
@@ -91,23 +91,23 @@ Function : DEF NAME '(' Args ')' ':' BREAK TAB FunctionBody
 
 Args : NAME Tail
 		{
-			log.Println("parsing Args")
+			if yyDebug > 0 { log.Println("parsing Args") }
 			$$ = append($2, $1)
 		}
      | /* empty rule */
      		{
-     			log.Println("empty Args")
+     			if yyDebug > 0 { log.Println("empty Args") }
      			$$ = []string{}
      		}
 
 Tail : ',' NAME Tail
 		{
-			log.Println("parsing Tail")
+			if yyDebug > 0 { log.Println("parsing Tail") }
 			$$ = append($3, $2)
 		}
      | /* empty rule */
      		{
-     			log.Println("empty Tail")
+     			if yyDebug > 0 { log.Println("empty Tail") }
      			$$ = []string{}
      		}
 
@@ -140,63 +140,63 @@ Return : RETURN Expr
 
 Line : FunctionCall
 		{
-			log.Println("parsing FunctionCall into Line")
+			if yyDebug > 0 { log.Println("parsing FunctionCall into Line") }
 			$$ = $1
 		}
      | Assignment
      		{
-			log.Println("parsing Assignment into Line")
+			if yyDebug > 0 { log.Println("parsing Assignment into Line") }
      			$$ = $1
      		}
 
 FunctionCall : NAME '(' ArgsExpr ')'
 		{
-			log.Println("parsing FunctionCall")
+			if yyDebug > 0 { log.Println("parsing FunctionCall") }
 			reverse($3)
 			$$ = &structure.FunctionCall{Name: $1, Args: $3}
 		}
 
 ArgsExpr : Expr TailExpr
 		{
-			log.Println("parsing ArgsExpr")
+			if yyDebug > 0 { log.Println("parsing ArgsExpr") }
 			$$ = append($2, $1)
 		}
          | /* empty rule */
          	{
-         		log.Println("empty ArgsExpr")
+         		if yyDebug > 0 { log.Println("empty ArgsExpr") }
          		$$ = []structure.Expr{}
          	}
 
 TailExpr : ',' Expr TailExpr
 		{
-			log.Println("parsing TailExpr")
+			if yyDebug > 0 { log.Println("parsing TailExpr") }
 			$$ = append($3, $2)
 		}
      	 | /* empty rule */
      		{
-     			log.Println("empty TailExpr")
+     			if yyDebug > 0 { log.Println("empty TailExpr") }
      			$$ = []structure.Expr{}
      		}
 
 Assignment : NAME '=' Expr
 		{
-			log.Println("parsing Assignment")
+			if yyDebug > 0 { log.Println("parsing Assignment") }
 			$$ = &structure.Assignment{Name: $1, Assignee: $3}
 		}
 
 Expr : FunctionCall
 		{
-			log.Println("parsing FunctionCall into Expr")
+			if yyDebug > 0 { log.Println("parsing FunctionCall into Expr") }
 			$$ = $1
 		}
      | '\'' NAME '\''
      		{
-			log.Println("parsing Constant into Expr")
+			if yyDebug > 0 { log.Println("parsing Constant into Expr") }
      			$$ = &structure.Constant{Content: $2}
      		}
      | NAME
      		{
-			log.Println("parsing Name into Expr")
+			if yyDebug > 0 { log.Println("parsing Name into Expr") }
      			$$ = &structure.Name{Name: $1}
      		}
 

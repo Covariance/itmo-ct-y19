@@ -474,39 +474,51 @@ yydefault:
 	case 1:
 		yyDollar = yyS[yypt-2 : yypt+1]
 		{
-			log.Println("setting result of File")
+			if yyDebug > 0 {
+				log.Println("setting result of File")
+			}
 			reverse(yyDollar[1].programComponentList)
 			setResult(yylex, structure.Program{Content: yyDollar[1].programComponentList})
 		}
 	case 2:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		{
-			log.Println("setting result of File")
+			if yyDebug > 0 {
+				log.Println("setting result of File")
+			}
 			reverse(yyDollar[1].programComponentList)
 			setResult(yylex, structure.Program{Content: yyDollar[1].programComponentList})
 		}
 	case 3:
 		yyDollar = yyS[yypt-3 : yypt+1]
 		{
-			log.Println("appending Function to Program")
+			if yyDebug > 0 {
+				log.Println("appending Function to Program")
+			}
 			yyVAL.programComponentList = append(yyDollar[3].programComponentList, yyDollar[1].programComponent)
 		}
 	case 4:
 		yyDollar = yyS[yypt-3 : yypt+1]
 		{
-			log.Println("appending Line to Program")
+			if yyDebug > 0 {
+				log.Println("appending Line to Program")
+			}
 			yyVAL.programComponentList = append(yyDollar[3].programComponentList, yyDollar[1].entity)
 		}
 	case 5:
 		yyDollar = yyS[yypt-0 : yypt+1]
 		{
-			log.Println("empty Program")
+			if yyDebug > 0 {
+				log.Println("empty Program")
+			}
 			yyVAL.programComponentList = []structure.ProgramComponent{}
 		}
 	case 6:
 		yyDollar = yyS[yypt-9 : yypt+1]
 		{
-			log.Println("parsing Function")
+			if yyDebug > 0 {
+				log.Println("parsing Function")
+			}
 			reverse(yyDollar[4].stringList)
 			reverse(yyDollar[9].functionBody.Body)
 			yyVAL.programComponent = &structure.Function{
@@ -519,25 +531,33 @@ yydefault:
 	case 7:
 		yyDollar = yyS[yypt-2 : yypt+1]
 		{
-			log.Println("parsing Args")
+			if yyDebug > 0 {
+				log.Println("parsing Args")
+			}
 			yyVAL.stringList = append(yyDollar[2].stringList, yyDollar[1].str)
 		}
 	case 8:
 		yyDollar = yyS[yypt-0 : yypt+1]
 		{
-			log.Println("empty Args")
+			if yyDebug > 0 {
+				log.Println("empty Args")
+			}
 			yyVAL.stringList = []string{}
 		}
 	case 9:
 		yyDollar = yyS[yypt-3 : yypt+1]
 		{
-			log.Println("parsing Tail")
+			if yyDebug > 0 {
+				log.Println("parsing Tail")
+			}
 			yyVAL.stringList = append(yyDollar[3].stringList, yyDollar[2].str)
 		}
 	case 10:
 		yyDollar = yyS[yypt-0 : yypt+1]
 		{
-			log.Println("empty Tail")
+			if yyDebug > 0 {
+				log.Println("empty Tail")
+			}
 			yyVAL.stringList = []string{}
 		}
 	case 11:
@@ -572,68 +592,90 @@ yydefault:
 	case 15:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		{
-			log.Println("parsing FunctionCall into Line")
+			if yyDebug > 0 {
+				log.Println("parsing FunctionCall into Line")
+			}
 			yyVAL.entity = yyDollar[1].expr
 		}
 	case 16:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		{
-			log.Println("parsing Assignment into Line")
+			if yyDebug > 0 {
+				log.Println("parsing Assignment into Line")
+			}
 			yyVAL.entity = yyDollar[1].line
 		}
 	case 17:
 		yyDollar = yyS[yypt-4 : yypt+1]
 		{
-			log.Println("parsing FunctionCall")
+			if yyDebug > 0 {
+				log.Println("parsing FunctionCall")
+			}
 			reverse(yyDollar[3].exprList)
 			yyVAL.expr = &structure.FunctionCall{Name: yyDollar[1].str, Args: yyDollar[3].exprList}
 		}
 	case 18:
 		yyDollar = yyS[yypt-2 : yypt+1]
 		{
-			log.Println("parsing ArgsExpr")
+			if yyDebug > 0 {
+				log.Println("parsing ArgsExpr")
+			}
 			yyVAL.exprList = append(yyDollar[2].exprList, yyDollar[1].expr)
 		}
 	case 19:
 		yyDollar = yyS[yypt-0 : yypt+1]
 		{
-			log.Println("empty ArgsExpr")
+			if yyDebug > 0 {
+				log.Println("empty ArgsExpr")
+			}
 			yyVAL.exprList = []structure.Expr{}
 		}
 	case 20:
 		yyDollar = yyS[yypt-3 : yypt+1]
 		{
-			log.Println("parsing TailExpr")
+			if yyDebug > 0 {
+				log.Println("parsing TailExpr")
+			}
 			yyVAL.exprList = append(yyDollar[3].exprList, yyDollar[2].expr)
 		}
 	case 21:
 		yyDollar = yyS[yypt-0 : yypt+1]
 		{
-			log.Println("empty TailExpr")
+			if yyDebug > 0 {
+				log.Println("empty TailExpr")
+			}
 			yyVAL.exprList = []structure.Expr{}
 		}
 	case 22:
 		yyDollar = yyS[yypt-3 : yypt+1]
 		{
-			log.Println("parsing Assignment")
+			if yyDebug > 0 {
+				log.Println("parsing Assignment")
+			}
 			yyVAL.line = &structure.Assignment{Name: yyDollar[1].str, Assignee: yyDollar[3].expr}
 		}
 	case 23:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		{
-			log.Println("parsing FunctionCall into Expr")
+			if yyDebug > 0 {
+				log.Println("parsing FunctionCall into Expr")
+			}
 			yyVAL.expr = yyDollar[1].expr
 		}
 	case 24:
 		yyDollar = yyS[yypt-3 : yypt+1]
 		{
-			log.Println("parsing Constant into Expr")
+			if yyDebug > 0 {
+				log.Println("parsing Constant into Expr")
+			}
 			yyVAL.expr = &structure.Constant{Content: yyDollar[2].str}
 		}
 	case 25:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		{
-			log.Println("parsing Name into Expr")
+			if yyDebug > 0 {
+				log.Println("parsing Name into Expr")
+			}
 			yyVAL.expr = &structure.Name{Name: yyDollar[1].str}
 		}
 	}

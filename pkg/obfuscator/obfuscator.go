@@ -31,7 +31,7 @@ func NewObfuscator() *obfuscator {
 	}
 }
 
-const ones = "I1l"
+const ones = "1Il"
 const zeros = "0Oo"
 
 func (r *obfuscator) generateNewNames() {
@@ -50,7 +50,11 @@ func (r *obfuscator) generateNewNames() {
 				break
 			}
 			indices[i+1]++
-			indices[i] = 0
+			if i == 0 {
+				indices[i] = 1
+			} else {
+				indices[i] = 0
+			}
 		}
 		if indices[len(indices)-1] == 3 {
 			break
