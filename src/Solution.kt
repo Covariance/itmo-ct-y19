@@ -12,13 +12,14 @@ class Solution : AtomicCounter {
 
     override fun getAndAdd(x: Int): Int {
         var old : Int = current.get().value
-        val node = Node(old + x)
+        var new = Node(old + x)
 
-        current.set(current.get().next.decide(node))
+        current.set(current.get().next.decide(new))
 
-        while (node.value != current.get().value) {
+        while (new != current.get()) {
             old = current.get().value
-            current.set(current.get().next.decide(Node(old + x)))
+            new = Node(old + x)
+            current.set(current.get().next.decide(new))
         }
 
         return old

@@ -25,15 +25,14 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     jcenter()
-    maven("https://kotlin.bintray.com/kotlinx/")
-    maven("https://dl.bintray.com/devexperts/Maven")
+    mavenCentral()
 }
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
     testImplementation(kotlin("test-junit"))
-    testImplementation("org.jetbrains.kotlinx:lincheck:2.4")
+    testImplementation("org.jetbrains.kotlinx:lincheck-jvm:2.14.1")
 }
 
 sourceSets["main"].java.setSrcDirs(listOf("src"))
