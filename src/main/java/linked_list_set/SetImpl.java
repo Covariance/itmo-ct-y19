@@ -1,66 +1,123 @@
 package linked_list_set;
 
+import kotlin.Pair;
+import kotlinx.atomicfu.AtomicRef;
+
 public class SetImpl implements Set {
-    private class Node {
-        Node next;
-        int x;
+    private final Node tail = new Node(Integer.MAX_VALUE, null);
+    private final Node head = new Node(Integer.MIN_VALUE, tail);
 
-        Node(int x, Node next) {
-            this.next = next;
+    private static class Node {
+        public int x;
+        public AtomicRef<WrappedNode> next;
+
+        public Node(int x, Node next) {
             this.x = x;
+            this.next = new AtomicRef<>(new WrappedNode(next));
         }
     }
 
-    private class Window {
-        Node cur, next;
+    private static class WrappedNode {
+        private final Node node;
+        private final boolean removed;
+
+        public WrappedNode(Node node, boolean removed) {
+            this.node = node;
+            this.removed = removed;
+        }
+
+        public WrappedNode(Node next) {
+            this(next, false);
+        }
+
+        public WrappedNode(int x, Node next) {
+            this(new Node(x, next));
+        }
+
+        public Node getNode() {
+            return node;
+        }
+
+        public boolean getRemoved() {
+            return removed;
+        }
     }
 
-    private final Node head = new Node(Integer.MIN_VALUE, new Node(Integer.MAX_VALUE, null));
+    private Pair<Node, Node> findWindow(int x) {
+        while (true) {
+            boolean valid = true;
+            Node left = head;
+            Node right = left.next.getValue().getNode();
+            while (right.x < x) {
+                WrappedNode nextL = left.next.getValue();
+                WrappedNode nextR = right.next.getValue();
+                if (nextL.getRemoved() || nextL.getNode() != right) {
+                    valid = false;
+                    break;
+                }
+                if (nextR.getRemoved()) {
+                    WrappedNode newNextL = new WrappedNode(nextR.getNode());
+                    if (!left.next.compareAndSet(nextL, newNextL)) {
+                        valid = false;
+                        break;
+                    }
+                    right = newNextL.getNode();
+                } else {
+                    left = right;
+                    right = left.next.getValue().getNode();
+                }
+            }
+            if (valid) {
+                WrappedNode nextL = left.next.getValue();
+                if (nextL.node != right || nextL.getRemoved()) {
+                    continue;
+                }
 
-    /**
-     * Returns the {@link Window}, where cur.x < x <= next.x
-     */
-    private Window findWindow(int x) {
-        Window w = new Window();
-        w.cur = head;
-        w.next = w.cur.next;
-        while (w.next.x < x) {
-            w.cur = w.next;
-            w.next = w.cur.next;
+                WrappedNode nextR = right.next.getValue();
+                if (nextR.getRemoved()) {
+                    left.next.compareAndSet(nextL, new WrappedNode(nextR.getNode()));
+                    continue;
+                }
+                return new Pair<>(left, right);
+            }
         }
-        return w;
     }
 
     @Override
     public boolean add(int x) {
-        Window w = findWindow(x);
-        boolean res;
-        if (w.next.x == x) {
-            res = false;
-        } else {
-            w.cur.next = new Node(x, w.next);
-            res = true;
+        while (true) {
+            Pair<Node, Node> w = findWindow(x);
+            if (w.getSecond().x == x) {
+                return false;
+            } else {
+                WrappedNode left = w.getFirst().next.getValue();
+                if (left.getNode() != w.getSecond() || left.getRemoved()) {
+                    continue;
+                }
+                if (w.getFirst().next.compareAndSet(left, new WrappedNode(x, w.getSecond()))) {
+                    return true;
+                }
+            }
         }
-        return res;
     }
 
     @Override
     public boolean remove(int x) {
-        Window w = findWindow(x);
-        boolean res;
-        if (w.next.x != x) {
-            res = false;
-        } else {
-            w.cur.next = w.next.next;
-            res = true;
+        while (true) {
+            Pair<Node, Node> w = findWindow(x);
+            if (w.getSecond().x != x) {
+                return false;
+            } else {
+                WrappedNode right = w.getSecond().next.getValue();
+                if (!right.getRemoved() && w.getSecond().next.compareAndSet(right, new WrappedNode(right.node, true))) {
+                    return true;
+                }
+            }
         }
-        return res;
     }
 
     @Override
     public boolean contains(int x) {
-        Window w = findWindow(x);
-        boolean res = w.next.x == x;
-        return res;
+        return findWindow(x).getSecond().x == x;
     }
 }
