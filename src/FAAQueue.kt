@@ -14,14 +14,24 @@ class FAAQueue<T> {
      * Adds the specified element [x] to the queue.
      */
     fun enqueue(x: T) {
-        val enqIdx = tail.value.enqIdx++
-        if (enqIdx >= SEGMENT_SIZE) {
-            val newTail = Segment(x)
-            tail.value.next = newTail
-            tail.value = newTail
-            return
+        var tail = this.tail.value
+        var enqInd = tail.enqIdx.getAndIncrement()
+        while (true) {
+            if (enqInd >= SEGMENT_SIZE) { // We jump over segment border
+                val isClear = tail.next.compareAndSet(null, Segment(x))
+                this.tail.compareAndSet(tail, tail.next.value!!)
+                if (isClear) {
+                    return
+                }
+            } else if (tail.elements[enqInd].compareAndSet(null, x)) {
+                // Expect not to be written to, otherwise try again
+                return
+            }
+
+            // Enqueue in this step failed, trying again (this is a weird get)
+            tail = this.tail.value
+            enqInd = tail.enqIdx.getAndIncrement()
         }
-        tail.value.elements[enqIdx] = x
     }
 
     /**
@@ -30,16 +40,26 @@ class FAAQueue<T> {
      * is empty.
      */
     fun dequeue(): T? {
+        var head = this.head.value
+        var deqInd = head.deqIdx.getAndIncrement()
         while (true) {
-            if (head.value.isEmpty) {
-                if (head.value.next == null) return null
-                head.value = head.value.next!!
+            if (deqInd >= SEGMENT_SIZE) {
+                val headNext = head.next.value ?: return null
+                this.head.compareAndSet(head, headNext)
                 continue
             }
-            val deqIdx = head.value.deqIdx++
-            val res = head.value.elements[deqIdx]
-            head.value.elements[deqIdx] = DONE
-            return res as T?
+            // I really don't like how this marker is not, for example, from enum of states, and therefore
+            // we have to use Segment with Any inside
+            val res = head.elements[deqInd].getAndSet(DONE)
+
+            if (res != null) {
+                @Suppress("UNCHECKED_CAST")
+                return res as T?
+            }
+
+            // Dequeue failed, trying again
+            head = this.head.value
+            deqInd = head.deqIdx.getAndIncrement()
         }
     }
 
@@ -50,8 +70,12 @@ class FAAQueue<T> {
     val isEmpty: Boolean get() {
         while (true) {
             if (head.value.isEmpty) {
-                if (head.value.next == null) return true
-                head.value = head.value.next!!
+                // Just a little tweak to adapt to reference
+                // btw it probably does not work at all
+                if (head.value.next.value == null) {
+                    return true
+                }
+                head.value = head.value.next.value!!
                 continue
             } else {
                 return false
@@ -60,21 +84,36 @@ class FAAQueue<T> {
     }
 }
 
+// Again, I don't like that we cannot make it generic, like Segment<T>
+//
+// Small proposal: how about we make SEGMENT_SIZE just a default argument in a constructor getting size? Like this:
+//
+// constructor(size: Int = SEGMENT_SIZE) {
+//     this.size = size
+//     this.elements = atomicArrayOfNulls(size)
+// }
+//
+// constructor(x: Any?, size: Int = SEGMENT_SIZE) : this(size = size) {
+//     enqIdx.incrementAndGet()
+//     elements[0].getAndSet(x)
+// }
+//
+// That would make out class a bit more real-life usable.
 private class Segment {
-    var next: Segment? = null
-    var enqIdx = 0 // index for the next enqueue operation
-    var deqIdx = 0 // index for the next dequeue operation
-    val elements = arrayOfNulls<Any>(SEGMENT_SIZE)
+    val next: AtomicRef<Segment?> = atomic(null)
+    val enqIdx = atomic(0) // index for the next enqueue operation
+    val deqIdx = atomic(0) // index for the next dequeue operation
+    val elements = atomicArrayOfNulls<Any>(SEGMENT_SIZE)
 
-    constructor() // for the first segment creation
-
-    constructor(x: Any?) { // each next new segment should be constructed with an element
-        enqIdx = 1
-        elements[0] = x
+    constructor() {
     }
 
-    val isEmpty: Boolean get() = deqIdx >= enqIdx || deqIdx >= SEGMENT_SIZE
+    constructor(x: Any?) {
+        enqIdx.incrementAndGet()
+        elements[0].getAndSet(x)
+    }
 
+    val isEmpty: Boolean get() = deqIdx.value >= enqIdx.value || deqIdx.value >= SEGMENT_SIZE
 }
 
 private val DONE = Any() // Marker for the "DONE" slot state; to avoid memory leaks
