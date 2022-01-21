@@ -1,4 +1,6 @@
-import kotlinx.atomicfu.*
+import kotlinx.atomicfu.AtomicRef
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.atomicArrayOfNulls
 
 class FAAQueue<T> {
     private val head: AtomicRef<Segment> // Head pointer, similarly to the Michael-Scott queue (but the first node is _not_ sentinel)
@@ -44,20 +46,18 @@ class FAAQueue<T> {
         var deqInd = head.deqIdx.getAndIncrement()
         while (true) {
             if (deqInd >= SEGMENT_SIZE) {
-                val headNext = head.next.value ?: return null
-                this.head.compareAndSet(head, headNext)
-                continue
+                val nextHead = head.next.value ?: return null
+                this.head.compareAndSet(head, nextHead)
+            } else {
+                // I really don't like how this marker is not, for example, from enum of states, and therefore
+                // we have to use Segment with Any inside
+                val res = head.elements[deqInd].getAndSet(DONE)
+                if (res != null) {
+                    @Suppress("UNCHECKED_CAST")
+                    return res as T?
+                }
             }
-            // I really don't like how this marker is not, for example, from enum of states, and therefore
-            // we have to use Segment with Any inside
-            val res = head.elements[deqInd].getAndSet(DONE)
 
-            if (res != null) {
-                @Suppress("UNCHECKED_CAST")
-                return res as T?
-            }
-
-            // Dequeue failed, trying again
             head = this.head.value
             deqInd = head.deqIdx.getAndIncrement()
         }
