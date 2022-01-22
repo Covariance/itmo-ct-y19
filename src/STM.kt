@@ -1,4 +1,4 @@
-import kotlinx.atomicfu.*
+import kotlinx.atomicfu.atomic
 
 /**
  * Atomic block.
@@ -27,7 +27,7 @@ abstract class TxScope {
 /**
  * Transactional variable.
  */
-class TxVar<T>(initial: T)  {
+class TxVar<T>(initial: T) {
     private val loc = atomic(Loc(initial, initial, rootTx))
 
     /**
@@ -35,12 +35,20 @@ class TxVar<T>(initial: T)  {
      * updating function [update] to it. Returns the updated value.
      */
     fun openIn(tx: Transaction, update: (T) -> T): T {
-        // todo: FIXME: this implementation does not actually implement transactional update
         while (true) {
             val curLoc = loc.value
-            val curValue = curLoc.oldValue
-            val updValue = update(curValue)
-            if (loc.compareAndSet(curLoc, Loc(updValue, updValue, tx))) return updValue
+            val curValue = curLoc.valueIn(tx) { it.abort() }
+            if (curValue == TxStatus.ACTIVE) {
+                continue
+            }
+            @Suppress("UNCHECKED_CAST")
+            val updValue = update(curValue as T)
+            if (loc.compareAndSet(curLoc, Loc(curValue, updValue, tx))) {
+                if (tx.status == TxStatus.ABORTED) {
+                    throw AbortException
+                }
+                return updValue
+            }
         }
     }
 }
@@ -52,7 +60,22 @@ private class Loc<T>(
     val oldValue: T,
     val newValue: T,
     val owner: Transaction
-)
+) {
+    fun valueIn(tx: Transaction, onActive: (Transaction) -> Unit): Any? {
+        if (owner === tx) {
+            return newValue
+        } else {
+            if (owner.status == TxStatus.ABORTED) {
+                return oldValue
+            }
+            if (owner.status == TxStatus.COMMITTED) {
+                return newValue
+            }
+            onActive(owner)
+            return TxStatus.ACTIVE
+        }
+    }
+}
 
 private val rootTx = Transaction().apply { commit() }
 
