@@ -1,100 +1,104 @@
 package linked_list_set;
 
-import kotlin.Pair;
 import kotlinx.atomicfu.AtomicRef;
 
 public class SetImpl implements Set {
-    private final Node tail = new Node(Integer.MAX_VALUE, null);
-    private final Node head = new Node(Integer.MIN_VALUE, tail);
+    private interface Node {
+        ActualNode node();
+    }
 
-    private static class Node {
-        public int x;
-        public AtomicRef<WrappedNode> next;
+    private static class ActualNode implements Node {
+        final AtomicRef<Node> next;
+        final int x;
 
-        public Node(int x, Node next) {
+        ActualNode(int x, ActualNode next) {
+            this.next = new AtomicRef<Node>(next);
             this.x = x;
-            this.next = new AtomicRef<>(new WrappedNode(next));
+        }
+
+        public ActualNode node() {
+            return this;
         }
     }
 
-    private static class WrappedNode {
-        private final Node node;
-        private final boolean removed;
+    private static class RemovedNode implements Node {
+        final ActualNode next;
 
-        public WrappedNode(Node node, boolean removed) {
-            this.node = node;
-            this.removed = removed;
+        RemovedNode(ActualNode next) {
+            this.next = next;
         }
 
-        public WrappedNode(Node next) {
-            this(next, false);
-        }
-
-        public WrappedNode(int x, Node next) {
-            this(new Node(x, next));
-        }
-
-        public Node getNode() {
-            return node;
-        }
-
-        public boolean getRemoved() {
-            return removed;
+        public ActualNode node() {
+            return next;
         }
     }
 
-    private Pair<Node, Node> findWindow(int x) {
+    private static class Window {
+        ActualNode left, right;
+
+        public Window(ActualNode left, ActualNode right) {
+            this.left = left;
+            this.right = right;
+        }
+    }
+
+    private final ActualNode head = new ActualNode(Integer.MIN_VALUE, new ActualNode(Integer.MAX_VALUE, null));
+
+    /**
+     * Returns the {@link Window}, where cur.x < x <= next.x
+     */
+    private Window findWindow(int x) {
         while (true) {
             boolean valid = true;
-            Node left = head;
-            Node right = left.next.getValue().getNode();
+            ActualNode left = head;
+            ActualNode right = left.next.getValue().node();
             while (right.x < x) {
-                WrappedNode nextL = left.next.getValue();
-                WrappedNode nextR = right.next.getValue();
-                if (nextL.getRemoved() || nextL.getNode() != right) {
+                Node nextL = left.next.getValue();
+                Node nextR = right.next.getValue();
+                if (nextL instanceof RemovedNode || nextL.node() != right) {
                     valid = false;
                     break;
                 }
-                if (nextR.getRemoved()) {
-                    WrappedNode newNextL = new WrappedNode(nextR.getNode());
-                    if (!left.next.compareAndSet(nextL, newNextL)) {
+                if (nextR instanceof RemovedNode) {
+                    if (!left.next.compareAndSet(nextL, nextR.node())) {
                         valid = false;
                         break;
                     }
-                    right = newNextL.getNode();
+                    right = nextR.node().node();
                 } else {
                     left = right;
-                    right = left.next.getValue().getNode();
+                    right = left.next.getValue().node();
                 }
             }
             if (valid) {
-                WrappedNode nextL = left.next.getValue();
-                if (nextL.node != right || nextL.getRemoved()) {
+                Node nextL = left.next.getValue();
+                if (nextL.node() != right || nextL instanceof RemovedNode) {
                     continue;
                 }
 
-                WrappedNode nextR = right.next.getValue();
-                if (nextR.getRemoved()) {
-                    left.next.compareAndSet(nextL, new WrappedNode(nextR.getNode()));
+                Node nextR = right.next.getValue();
+                if (nextR instanceof RemovedNode) {
+                    left.next.compareAndSet(nextL, nextR.node());
                     continue;
                 }
-                return new Pair<>(left, right);
+                return new Window(left, right);
             }
         }
     }
+
 
     @Override
     public boolean add(int x) {
         while (true) {
-            Pair<Node, Node> w = findWindow(x);
-            if (w.getSecond().x == x) {
+            Window w = findWindow(x);
+            if (w.right.x == x) {
                 return false;
             } else {
-                WrappedNode left = w.getFirst().next.getValue();
-                if (left.getNode() != w.getSecond() || left.getRemoved()) {
+                Node left = w.left.next.getValue();
+                if (left.node() != w.right || left instanceof RemovedNode) {
                     continue;
                 }
-                if (w.getFirst().next.compareAndSet(left, new WrappedNode(x, w.getSecond()))) {
+                if (w.left.next.compareAndSet(left, new ActualNode(x, w.right))) {
                     return true;
                 }
             }
@@ -104,12 +108,12 @@ public class SetImpl implements Set {
     @Override
     public boolean remove(int x) {
         while (true) {
-            Pair<Node, Node> w = findWindow(x);
-            if (w.getSecond().x != x) {
+            Window w = findWindow(x);
+            if (w.right.x != x) {
                 return false;
             } else {
-                WrappedNode right = w.getSecond().next.getValue();
-                if (!right.getRemoved() && w.getSecond().next.compareAndSet(right, new WrappedNode(right.node, true))) {
+                Node right = w.right.next.getValue();
+                if (right instanceof ActualNode && w.right.next.compareAndSet(right, new RemovedNode(right.node()))) {
                     return true;
                 }
             }
@@ -118,6 +122,6 @@ public class SetImpl implements Set {
 
     @Override
     public boolean contains(int x) {
-        return findWindow(x).getSecond().x == x;
+        return findWindow(x).right.x == x;
     }
 }
