@@ -1,4 +1,6 @@
 import kotlinx.atomicfu.*
+import java.lang.Integer.max
+import java.lang.Integer.min
 
 /**
  * Bank implementation.
@@ -8,8 +10,6 @@ import kotlinx.atomicfu.*
  * It uses a simplified and faster version of DCSS operation that relies for its correctness on the fact that
  * Account instances in [accounts] array never suffer from ABA problem.
  * See also "Practical lock-freedom" by Keir Fraser. See [acquire] method.
- *
- * :TODO: This implementation has to be completed, so that it is thread-safe and lock-free.
  */
 class BankImpl(override val numberOfAccounts: Int) : Bank {
     /**
@@ -68,16 +68,23 @@ class BankImpl(override val numberOfAccounts: Int) : Bank {
     }
 
     override fun withdraw(index: Int, amount: Long): Long {
-        // todo: write withdraw operation using deposit as an example
+        require(amount > 0) { "Invalid amount: $amount" }
+        check(amount <= MAX_AMOUNT) { "Overflow" }
         /*
          * Basically, implementation of this method must perform the logic of the following code "atomically":
          */
-        require(amount > 0) { "Invalid amount: $amount" }
-        val account = account(index)
-        check(account.amount - amount >= 0) { "Underflow" }
-        val updated = Account(account.amount - amount)
-        accounts[index].value = updated
-        return updated.amount
+        while (true) {
+            val account = account(index)
+            /*
+             * If there is a pending operation on this account, then help to complete it first using
+             * its invokeOperation method. If the result is false then there is no pending operation,
+             * thus the account can be safely updated.
+             */
+            if (account.invokeOperation()) continue
+            check(account.amount >= amount) { "Underflow" }
+            val updated = Account(account.amount - amount)
+            if (accounts[index].compareAndSet(account, updated)) return updated.amount
+        }
     }
 
     override fun transfer(fromIndex: Int, toIndex: Int, amount: Long) {
@@ -103,7 +110,6 @@ class BankImpl(override val numberOfAccounts: Int) : Bank {
      * This method returns null if op.completed is true.
      */
     private fun acquire(index: Int, op: Op): AcquiredAccount? {
-        // todo: write the implementation of this method with the following logic:
         /*
          * This method must loop trying to replace accounts[index] with an instance of
          *     new AcquiredAccount(<old-amount>, op) until that successfully happens and return the
@@ -119,11 +125,21 @@ class BankImpl(override val numberOfAccounts: Int) : Bank {
          *
          * Basically, implementation of this method must perform the logic of the following code "atomically":
          */
-        if (op.completed) return null
-        val account = account(index)
-        val acquiredAccount = AcquiredAccount(account.amount, op)
-        accounts[index].value = acquiredAccount
-        return acquiredAccount
+        while (true) {
+            val account = account(index)
+            if (op.completed) {
+                return null
+            }
+            if (account is AcquiredAccount && account.op == op) {
+                return account
+            }
+            if (!account.invokeOperation()) {
+                val acquired = AcquiredAccount(account.amount, op)
+                if (accounts[index].compareAndSet(account, acquired)) {
+                    return acquired
+                }
+            }
+        }
     }
 
     /**
@@ -224,7 +240,6 @@ class BankImpl(override val numberOfAccounts: Int) : Bank {
         var errorMessage: String? = null
 
         override fun invokeOperation() {
-            // todo: write implementation for this method, use TotalAmountOp as an example
             /*
              * In the implementation of this operation only two accounts (with fromIndex and toIndex) needs
              * to be acquired. Unlike TotalAmountOp, this operation has its own result in errorMessage string,
@@ -233,15 +248,37 @@ class BankImpl(override val numberOfAccounts: Int) : Bank {
              *
              * Basically, implementation of this method must perform the logic of the following code "atomically":
              */
-            val from = account(fromIndex)
-            val to = account(toIndex)
-            when {
-                amount > from.amount -> errorMessage = "Underflow"
-                to.amount + amount > MAX_AMOUNT -> errorMessage = "Overflow"
-                else -> {
-                    accounts[fromIndex].value = Account(from.amount - amount)
-                    accounts[toIndex].value = Account(to.amount + amount)
+//            if (fromIndex == toIndex) {
+//                errorMessage = "Transaction to self is prohibited"
+//                return
+//            }
+
+            // Try here is for the sake of finally (I miss defer from go though)
+            // It may be not the best design decision, but if we would have more 'exiting' cases it would work nicely
+            val first = acquire(min(fromIndex, toIndex), this)
+            val second = acquire(max(fromIndex, toIndex), this)
+
+            val from = if (fromIndex < toIndex) first else second
+            val to = if (fromIndex < toIndex) second else first
+
+            try {
+                if (from == null || to == null) {
+                    return
                 }
+
+                when {
+                    amount > from.amount -> errorMessage = "Underflow"
+                    to.amount + amount > MAX_AMOUNT -> errorMessage = "Overflow"
+                    else -> {
+                        from.newAmount = from.amount - amount
+                        to.newAmount = to.amount + amount
+                    }
+                }
+            } finally {
+                this.completed = true
+
+                release(max(fromIndex, toIndex), this)
+                release(min(fromIndex, toIndex), this)
             }
         }
     }
