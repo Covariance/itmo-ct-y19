@@ -32,11 +32,8 @@ class SynchronousQueueMS<E> : SynchronousQueue<E> {
             val curHead = head.value
             val curTail = tail.value
 
-            if (curTail is Receiver<*> || curHead == curTail) {
-                if (check(curTail, node)) {
-                    return
-                }
-                continue
+            if ((curTail is Sender<*> || curHead == curTail) && check(curTail, node)) {
+                return
             }
 
             val next = curHead.next.value
@@ -59,11 +56,8 @@ class SynchronousQueueMS<E> : SynchronousQueue<E> {
             val curHead = head.value
             val curTail = tail.value
 
-            if (curTail is Receiver<*> || curHead == curTail) {
-                if (check(curTail, node)) {
-                    return node.value.value!!
-                }
-                continue
+            if ((curTail is Receiver<*> || curHead == curTail) && check(curTail, node)) {
+                return node.value.value!!
             }
 
             val next = curHead.next.value
