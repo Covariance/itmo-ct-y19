@@ -1,0 +1,73 @@
+@grammar calculator;
+
+@terminals
+    EPS: "EPS";
+    LB: "\\(";
+    RB: "\\)";
+    POW: "\\*\\*";
+    PLUS: "\\+";
+    MINUS: "-";
+    MUL: "\\*";
+    DIV: "/";
+    DIGIT: "[0-9]+";
+    EXCL: "!";
+
+@start: e;
+
+@rules
+    e returns [x int] : t # left := res0.x; # e_[left]  # res.x = res1.x; #;
+    e_[arg int] returns [x int] :
+        PLUS t # val := res1.x; # plus_op[arg, val] # cur := res2.x; # e_[cur] # res.x = res3.x; # |
+        MINUS t # val := res1.x; # minus_op[arg, val] # cur := res2.x; # e_[cur] # res.x = res3.x; # |
+        EPS # res.x = arg; #;
+    t returns [x int] : u # left := res0.x; # t_[left]  # res.x = res1.x; #;
+    t_[arg int] returns [x int] :
+        MUL u # val := res1.x; # mul_op[arg, val] # cur := res2.x; # t_[cur] # res.x = res3.x; # |
+        DIV u # val := res1.x; # div_op[arg, val] # cur := res2.x; # t_[cur] # res.x = res3.x; # |
+        EPS # res.x = arg #;
+
+    u returns [x int] : fact # left := res0.x; # u_
+            #
+                    fmt.Println(left, res1.x)
+                    result__ := 1;
+                    for i_ := 0; i_ < res1.x; i_++ {
+                        result__ *= left
+                    }
+                    res.x = result__
+            #;
+    u_ returns [x int] :
+        POW fact # fmt.Println(res1.x); cur := res1.x; # u_
+        #
+                fmt.Println(cur, res2.x)
+                result__ := 1;
+                for i_ := 0; i_ < res2.x; i_++ {
+                    result__ *= cur
+                }
+                res.x = result__
+        # |
+        EPS # res.x = 1 #;
+
+    fact returns[x int] : f # val := res0.x; # fact_[val] # res.x = res1.x; # ;
+
+    fact_[arg int] returns [x int]:
+        EXCL fact_op[arg] # val := res1.x; # fact_[val] # res.x = res2.x; # |
+        EPS # res.x = arg; #;
+
+    f returns [x int]:
+        MINUS f # res.x = -res1.x; #|
+        LB e RB # res.x = res1.x; # |
+        DIGIT # res.x, _ = strconv.Atoi(token.GetValue()); #;
+
+    fact_op[arg int] returns[x int] : EPS
+    #
+        result_ := 1;
+        for i_ := 2; i_ <= arg; i_++ {
+            result_ *= i_;
+        }
+        res.x = result_;
+    #;
+
+    plus_op[a int, b int] returns[x int]: EPS # res.x = a + b; #;
+    minus_op[a int, b int] returns[x int]: EPS # res.x = a - b; #;
+    mul_op[a int, b int] returns[x int]: EPS # res.x = a * b; #;
+    div_op[a int, b int] returns[x int]: EPS # res.x = a / b; #;
