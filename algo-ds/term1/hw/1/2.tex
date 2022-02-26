@@ -1,0 +1,240 @@
+\section{}
+\label{sec:2}
+	В этой задаче мы будем крайне активно использовать следующую лемму:
+	\begin{lemma}
+		$\forall f(n),\, g(n),\, h(n): \: f(n) = \mathcal{O}(g(n)), \, g(n) = \mathcal{O}(h(n)), \, \Rightarrow \, f(n) = \mathcal{O}(h(n))$
+	\end{lemma}
+
+	Все стрелочки в нижесприведённом списке кликабельны, по ним переносит на доказательство.
+
+	\begin{gather*}
+		1 
+		\text{\hyperref[p1]{\vphantom{|}$\longrightarrow$}}
+		\,
+		\left(\frac{3}{2}\right)^2
+		\,
+		\text{\hyperref[p2]{\vphantom{|}$\longrightarrow$}}
+		\,
+		n^{\frac{1}{\log n}}
+		\,
+		\text{\hyperref[p3]{\vphantom{|}$\longrightarrow$}}
+		\,
+		\log\log n
+		\,
+		\text{\hyperref[p4]{\vphantom{|}$\longrightarrow$}}
+		\,
+		\sqrt{\log n}
+		\,
+		\text{\hyperref[p5]{\vphantom{|}$\longrightarrow$}}
+		\,
+		\log^2n
+		\,
+		\text{\hyperref[p6]{\vphantom{|}$\longrightarrow$}}
+		\,
+		\sqrt(2)^{\log n}
+		\,
+		\text{\hyperref[p7]{\vphantom{|}$\longrightarrow$}}
+		\,
+		2^{\log n}
+		\,
+		\text{\hyperref[p8]{\vphantom{|}$\longrightarrow$}}
+		\,
+		n
+		\,
+		\text{\hyperref[p9]{\vphantom{|}$\longrightarrow$}}
+		\,
+		n\log n
+		\,
+		\text{\hyperref[p10]{\vphantom{|}$\longrightarrow$}}
+		\,
+		\log n!
+		\,
+		\text{\hyperref[p11]{\vphantom{|}$\longrightarrow$}}
+		\\
+		n^2
+		\,
+		\text{\hyperref[p12]{\vphantom{|}$\longrightarrow$}}
+		\,
+		4^{\log n}
+		\,
+		\text{\hyperref[p13]{\vphantom{|}$\longrightarrow$}}
+		\,
+		n^3
+		\,
+		\text{\hyperref[p14]{\vphantom{|}$\longrightarrow$}}
+		\,
+		\left(\log n\right)!
+		\,
+		\text{\hyperref[p15]{\vphantom{|}$\longrightarrow$}}
+		\,
+		\left(\log n\right)^{\log n}
+		\,
+		\text{\hyperref[p16]{\vphantom{|}$\longrightarrow$}}
+		\,
+		n^{\log\log n}
+		\,
+		\text{\hyperref[p17]{\vphantom{|}$\longrightarrow$}}
+		\,
+		n\cdot 2^n
+		\,
+		\text{\hyperref[p18]{\vphantom{|}$\longrightarrow$}}
+		\,
+		\exp^n
+		\,
+		\text{\hyperref[p19]{\vphantom{|}$\longrightarrow$}}
+		\,
+		n!
+		\,
+		\text{\hyperref[p20]{\vphantom{|}$\longrightarrow$}}
+		\,
+		\left(n+1\right)!
+		\,
+		\text{\hyperref[p21]{\vphantom{|}$\longrightarrow$}}
+		\,
+		2^{2^n}
+		\,
+		\text{\hyperref[p22]{\vphantom{|}$\longrightarrow$}}
+		\,
+		2^{2^{n+1}}
+	\end{gather*}
+	
+	
+	
+	\begin{proposition}
+		\label{p1}
+		$$\left(\frac{3}{2}\right)^2 \geq 1$$
+	\end{proposition}
+
+	\begin{proposition}
+		\label{p2}
+		Заменим $n = 2^k$.
+		$$ n^{\frac{1}{\log(n)}} = \left(2^k\right)^{\frac{1}{k}} = 2$$
+		$$ \frac{9}{8} \cdot 2 \geq \left(\frac{3}{2}\right)^2$$
+	\end{proposition}
+
+	\begin{proposition}
+		\label{p3}
+		$$\log(\log(n)) \geq 1$$
+		\begin{center}Потому как $\lim\limits_{n \rightarrow \infty}\log(\log(n)) = \infty$.\end{center}
+	\end{proposition}
+
+	\begin{proposition}
+		\label{p4}
+		Заменим $n = 2^{2^k}$.
+		\begin{align*}
+		 \sqrt{\log n} = \sqrt{2^k} \geq \log\log n = k \Leftrightarrow\\
+		 \Leftrightarrow \: 4^k \geq k^2\text{, а это верно.}
+		\end{align*}
+	\end{proposition}
+	
+	\begin{proposition}
+		\label{p5}
+		Заменим $n = 2^k$.
+		$$\log^2n = k^2 \geq \sqrt{k} = \sqrt{\log n} $$
+	\end{proposition}
+	
+	\begin{proposition}
+		\label{p6}
+		Заменим $n = 2^k$.
+		$$\sqrt{2}^{\log n} = 2^k \geq k^2 = \log^2n$$
+	\end{proposition}
+
+	\begin{proposition}
+		\label{p7}
+		$$2^{\log n} = n \geq \sqrt{n} = \sqrt{2}^{\log n}$$
+	\end{proposition}
+	
+	\begin{proposition}
+		\label{p8}
+		$$n = 2^{\log n}$$
+	\end{proposition}
+	
+	\begin{proposition}
+		\label{p9}
+		$$n\log n \geq n\text{, при любом } n \geq 2$$
+	\end{proposition}
+	
+	\begin{proposition}
+		\label{p10}
+		Смотреть задачу \ref{sec:3}.
+	\end{proposition}
+	
+	\begin{proposition}
+		\label{p11}
+		$$n^2 \geq n\log n$$
+	\end{proposition}
+	
+	\begin{proposition}
+		\label{p12}
+		$$4^{\log n} = n^2$$
+	\end{proposition}
+
+	\begin{proposition}
+		\label{p13}
+		$$n^3 \geq n^2$$
+	\end{proposition}
+	
+	\begin{proposition}
+		\label{p14}
+		Заменим $n = 2^k$.
+		$$\left(\log n\right)! = k! > 8^k$$
+	\end{proposition}
+	
+	\begin{proposition}
+		\label{p15}
+		Заменим $n = 2^k$.
+		$$\left(\log n\right)^{\log n} = k^k \geq k! = \left(\log n\right)!$$
+	\end{proposition}
+	
+	\begin{proposition}
+		\label{p16}
+		$$n^{\log\log n} = \left(\log n\right)^{\log n}$$
+	\end{proposition}
+	
+	\begin{proposition}
+		\label{p17}
+		Заменим $n = 2^k$.
+		\begin{gather*}
+		 2^k + k \geq k\log k \Leftrightarrow\\
+		\frac{2^k+k}{k} \geq \log k \Leftrightarrow\\
+		2^{\frac{2^k+k}{k}} \geq k \Leftrightarrow\\
+		2^k\cdot 2^{2^k} \geq k^k \Leftrightarrow\\
+		n\cdot 2^n \geq \left(\log n\right)^{\log n}
+		\end{gather*}
+	\end{proposition}
+	
+	\begin{proposition}
+		\label{p18}
+		\begin{gather*}
+		\exp^n \geq n\cdot 2^n \Leftrightarrow\\
+		\left(\frac{\exp}{2}\right)^n \geq n
+		\end{gather*}
+		А это верно, так как степенная функция с основанием $>1$ больше линейной с какого-то значения $n$.
+		
+	\end{proposition}
+	
+	\begin{proposition}
+		\label{p19}
+		Рассмотрим, например, значение $N = 27 > \exp^3$.
+		Тогда $n\forall n \,\geq\, N:\; n! = 1\cdot2\cdot(3\cdot4\dotsc\cdot27) \cdot (28\cdot29\cdot\dotsc\cdot n) \,>\, 1\cdot2\cdot(\exp^{27})\cdot(\exp^{n-27}) \,>\, \exp^n$ 
+	\end{proposition}
+	
+	\begin{proposition}
+		\label{p20}
+		$(n+1)! > n!$
+	\end{proposition}
+	
+	\begin{proposition}
+		\label{p21}
+		Докажем по индукции:
+		
+		\textbf{База:} $n = 3:\; 2^{2^3} = 2^8 = 256 > 2 = (2)!$.
+		
+		\textbf{Переход:} заметим, что $\forall n>3:\; n! > n+1$. Таким образом, если верно, что $2^{2^n} > n!$, то $2^{2^{n+1}} = (2^{2^n})^2 > (n!)^2 > (n+1)!$. Доказано.
+	\end{proposition}
+	
+	\begin{proposition}
+		\label{p22}
+		$2^{2^{n+1}} = (2^{2^n})^2 > 2^{2^n}$
+	\end{proposition}
+

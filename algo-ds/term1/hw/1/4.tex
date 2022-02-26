@@ -1,0 +1,79 @@
+\section{}
+	\label{sec:4}
+	Для начала нарисуем дерево для этой рекурренты:
+	
+	Несложно заметить, что в $j$-ой строке ровно $2^j$ элеементов и каждый из них будет выполняться за $\frac{\left(\frac{n}{2^j}\right)}{\log \left(\frac{n}{2^j}\right)}$.
+	
+	Таким образом, если просуммиовать все времена выполнения элементов, получится следующее значение:
+	
+	$$\sum_{j = 0}^{\log n - 1} 2^j \cdot \left(\frac{\left(\frac{n}{2^j}\right)}{\log \left(\frac{n}{2^j}\right)}\right) = \sum_{j = 0}^{\log n-1} \frac{n}{\log \left(\frac{n}{2^j}\right)} = \sum_{j = 0}^{\log n-1} \frac{n}{\log n - j} = n\cdot \sum_{j = 1}^{\log n} \frac{1}{j}$$
+	
+	Давайте введём вспомогательную функцию $h(n)$, определяемую так:
+	
+	$$h(n) = \sum_{j = 0}^{n} \frac{1}{j}$$
+	
+	Тогда утверждается, что $T(n) = \theta(n\cdot h(\log n))$. 
+	
+	Доказательство точного равенства при значении из определения $c=1$ по индукции:
+	
+	
+	\textbf{База:} начальные значения задаются любыми, так что верна.
+	
+	
+	\textbf{Переход:} Пусть $T(\frac{n}{2}) = \theta(\frac{n}{2}\cdot h(\log \frac{n}{2})$. Докажем, что $T(n) = \theta(n\cdot h(\log n))$. Положим $n = 2^k$.
+	
+	\begin{gather*}
+	T(n) = 2\cdot T\left(\frac{n}{2}\right) + \frac{n}{\log n}
+	\\
+	T\left(2^k\right) = 2\cdot T\left(2^{k-1}\right) + \frac{2^k}{k}
+	\\
+	T\left(2^k\right) = 2\cdot 2^{k-1} \cdot h(k-1) + \left(2^k \cdot (h(k) - h(k-1))\right) 
+	\\
+	T\left(2^k\right) = 2^k \cdot h(k)
+	\\
+	T(n) = n\cdot h(\log n)
+	\\
+	\text{Победа.}
+	\end{gather*}
+	
+	На самом деле можно приблизить функцию $h(n)$ функцией $\log n$, то есть доказать, что $h(n) = \theta(\log n)$. Будем доказывать по индукции, что при $c_1 = \frac{1}{3}$ и $c_2 = 2$ верно, что $c_1 \cdot \log n \leq h(n) \leq c_2 \cdot \log n$.
+	
+	\textbf{База:} $\frac{1}{3} \cdot \log 2 = \frac{1}{3} \leq 1 + \frac{1}{2} \leq 2 = 2 \cdot \log 2$. 
+	
+	\textbf{Переход:} Пусть для $n$ уже верно, что $c_1 \cdot \log n \leq h(n) \leq c_2 \cdot \log n$. Докажем это утверждение для $n+1$:
+	
+	\begin{gather*}
+		c_1 \cdot \log(n+1) \, \leq \, h(n+1) \, \leq \, c_2 \cdot \log(n+1)
+		\\
+		\Updownarrow
+		\\
+		c_1 \cdot \log(n+1) - c_1 \cdot \log(n) \, \leq \, \frac{1}{n+1} \, \leq \, c_2 \cdot \log(n+1) - c_2 \cdot \log(n)
+		\\
+		\Updownarrow
+		\\
+		c_1 \cdot \left(\log \left(1 + \frac{1}{n}\right)^n + \log\left(1+\frac{1}{n}\right)\right) \, \leq \, 1 \, \leq \, c_2 \cdot \left(\log \left(1 + \frac{1}{n}\right)^n + \log\left(1+\frac{1}{n}\right)\right)
+		\\
+		\text{Воспользуемся \hyperref[l1]{леммой из задачи 3:}}
+		\\
+		c_1 \cdot \left(\log 4 + \log \left(1+\frac{1}{n}\right)\right) \, \leq \, 1 \, \leq \, c_2 \cdot \left(\log 2 + \log \left(1+\frac{1}{n}\right)\right)
+		\\
+		\Updownarrow
+		\\
+		c_1 \cdot \left(\log 4 + \log 2\right) \, \leq \, 1 \, \leq \, c_2 \cdot \left(\log 2 + \log 1\right)
+		\\
+		\Updownarrow
+		\\
+		c_1 \cdot 3 \, \leq \, 1 \, \leq \, c_2 \cdot 1
+		\\
+		\text{Что верно при} \; c_1 = \frac{1}{3}; \; c_2 = 2.\; \text{Переход доказан.}
+	\end{gather*}
+	
+	Таким образом, имеем:
+	$$\begin{cases}
+		T(n) = n\cdot h(\log n)
+		\\
+		h(n) = \theta (\log n)
+	\end{cases}
+	\Leftrightarrow\;\;
+	T(n) = \theta(n \log\log n)$$
+	

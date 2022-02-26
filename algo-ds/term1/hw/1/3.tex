@@ -1,0 +1,112 @@
+\section{}
+\label{sec:3}
+	\begin{gather*}
+	\log(n!) = \Theta(n\log(n))
+	\\
+	\Updownarrow
+	\\
+	\begin{cases}
+		$$\log(n!) = \mathcal{O}(n\log(n))$$
+		\\
+		$$\log(n!) = \Omega(n\log(n))$$
+	\end{cases}
+	\end{gather*}
+	
+	Докажем оба пункта по отдельности. Для этого сформулируем три леммы:
+	\begin{lemma} \label{l1}
+		Для $n \in \mathbb{N}$ верно, что:
+		$$2 \, < \, \left(1+\frac{1}{n}\right)^n \, < \, 4$$
+	\end{lemma}
+	
+	\begin{lemma} \label{l2}
+		Так как нам в общем и целом не важно основание логарифма, то можно положить верным следующее утверждение:
+		$$ \log(a) \, < \, \log(b) \, \Leftrightarrow \, a\,<\,b $$
+	\end{lemma}
+
+	\begin{lemma} \label{l3}
+		Для $n \in \mathbb{N}$ и $c>0$ верно, что:
+		$$ c\cdot n\log(n) = \log(n^{c\cdot n})$$
+	\end{lemma}
+		
+		Эти леммы будут использоваться по ходу доказательства без упоминаний.
+		
+	\subsection{$\log(n!) = \mathcal{O}(n\log(n))$}
+		\begin{gather*}
+		\log(n!) = \mathcal{O}(n\,\log(n))
+		\\
+		\Updownarrow
+		\\
+		\exists \, c>0,\, \exists N>0,\: \forall n > N:\: \log(n!) \leq c\cdot(n\,\log(n))
+		\end{gather*}
+		Докажем, что $c=1$ и $N=1$ подходят. По свойству логарифма:
+		$$ \log(n!) = \sum_{j=1}^{n} \log(j)$$
+		Теперь нам надо доказать, что $\forall \, n > 1$:
+		\begin{gather*}
+		\log(n!) \leq n\log(n)
+		\\
+		\Updownarrow
+		\\
+		\sum_{j=1}^n \log(j) \, < \, n\log(n)
+		\\
+		\text{Что верно.}
+		\end{gather*} 		
+		
+	\subsection{$\log(n!) = \Omega(n\log(n))$}
+		$$\log(n!) = \Omega(n\,\log(n))$$
+		$$\Updownarrow$$
+		$$\exists \, c>0,\, \exists N>0,\: \forall n > N:\: \log(n!) \geq c\cdot(n\,\log(n))$$	
+		Докажем, что $c=\frac{1}{2}$ и $N=2$ подходят. Воспользуемся индукцией.
+		
+		\textbf{База:}
+		$\sphericalangle \: n=3$. При таком значении:
+		\begin{gather*}
+		\log(n!) = \log(6) \geq \frac{1}{2}\cdot n\log(n) = \log(3^{\frac{3}{2}})
+		\\
+		\Updownarrow
+		\\
+		6 > 3^{\frac{3}{2}}
+		\\
+		\Updownarrow
+		\\
+		36 > 27
+		\\
+		\text{База доказана.}
+		\end{gather*}
+		
+		\textbf{Переход:}
+		Пусть для $n$ утверждение верно:
+		\begin{gather*}
+		\log(n!) \,\geq\, \frac{1}{2}\cdot n\log(n)
+		\\
+		\Updownarrow
+		\\
+		\log(n!) \,\geq\, \log(n^{\frac{n}{2}})
+		\\
+		\Updownarrow
+		\\
+		(n!)^2 \,\geq\, n^n
+		\\
+		\Updownarrow
+		\\
+		(n!)^2 \cdot 4 \,\geq\, (n!)^2 \cdot \left(1+\frac{1}{n}\right)^n \,\geq\, n^n \cdot \left(1+\frac{1}{n}\right)^n
+		\\
+		\Updownarrow
+		\\
+		((n+1)!)^2 \,\geq\, 4\cdot(n!)^2 \cdot (n+1) \,\geq\, (n+1)^n \cdot (n+1) \,=\, (n+1)^{n+1}
+		\\
+		\Updownarrow
+		\\
+		2\cdot\log((n+1)!) \,\geq\, (n+1)\log(n+1)
+		\\
+		\Updownarrow
+		\\
+		\log((n+1)!) \,\geq\, \frac{1}{2} \cdot (n+1)\log(n+1)
+		\\
+		\text{Переход доказан.}
+		\end{gather*}
+		
+		
+		
+		
+		
+		
