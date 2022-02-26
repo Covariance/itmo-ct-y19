@@ -1,8 +1,0 @@
-def 1oI010():
-	loloI0=input()
-	print('read',loloI0)
-	return loloI0
-loloI0=1oI010()
-10lOIO='lOIO1O'
-I01oIo=1oI010()
-print(loloI0,I01oIo)

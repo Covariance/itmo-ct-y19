@@ -1,9 +1,0 @@
-functionality_tests:
-  - script: logged.py
-    args: long_argfile.txt
-
-  - script: no_args.py
-    args: long_argfile.txt
-
-  - script: nested.py
-    args: long_argfile.txt
