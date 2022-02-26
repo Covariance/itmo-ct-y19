@@ -1,0 +1,9 @@
+# IDE files
+.idea
+*.iml
+
+# binaries
+bin
+
+# test output
+cover.out
