@@ -1,0 +1,7 @@
+# IDEA folder
+.idea
+# Go binaries folder
+bin
+
+# Go tests cover file
+cover.out

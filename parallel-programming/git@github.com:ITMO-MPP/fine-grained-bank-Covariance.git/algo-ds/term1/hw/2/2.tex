@@ -1,0 +1,26 @@
+\section{}
+	Назовём $cap$ длину стека, $n$ "--- количество элементов в нём. Тогда определим потенциал так:
+	\begin{equation*}
+		\begin{cases}
+			\Phi(n, cap) = \frac{cap}{2} - n, & n \leq \frac{cap}{2}\\ \\
+			\Phi(n, cap) = 2\cdot\left(n - \frac{cap}{2}\right), & n\geq \frac{cap}{2}
+		\end{cases}
+	\end{equation*}
+	
+	Покажем, что этот потенциал подходит. Заведём следующие операции:
+	
+	\begin{itemize}
+		\item lesser\_push "--- push, когда в массиве меньше $\frac{cap}{2}$ элементов. Стоимость операции $a_{lps} = 1 + \Phi(n, cap) - \Phi(n-1, cap) = 1 + \frac{cap}{2} - n - \frac{cap}{2} + n - 1 = 0$.\\
+		
+		\item greater\_push "--- push, когда в массиве больше или равно $\frac{cap}{2}$ элементов. Стоимость операции $a_{gps} = 1 + \Phi(n, cap) - \Phi(n-1, cap) = 1 + 2\cdot\left(n - \frac{cap}{2} - n + 1 + \frac{cap}{2} \right) = 3$.\\
+		
+		\item lesser\_pop "--- pop, когда в массиве меньше или равно $\frac{cap}{2}$ элементов. Стоимость операции $a_{lpp} = 1 + \Phi(n, cap) - \Phi(n+1, cap) = 1 + \frac{cap}{2} - n - \frac{cap}{2} + n + 1 = 2$.\\
+		
+		\item greater\_pop "--- pop, когда в массиве больше или равно $\frac{cap}{2}$ элементов. Стоимость операции $a_{gpp} = 1 +  2\cdot\left(n - \frac{cap}{2} - n - 1 + \frac{cap}{2} \right) = -1$.\\
+		
+		\item lesser\_move "--- копирование массива при сужении, то есть когда $n = \frac{cap}{4}$. Стоимость операции $a_{lm} = n + \Phi(n, \frac{cap}{2}) - \Phi(n, cap) = \frac{cap}{4} + 0 - \frac{cap}{2} + \frac{cap}{4} = 0$.\\
+		 
+		\item greater\_move "--- копирование массива при расширении, то есть когда $n = cap$. Стоимость операции $a_{gm} = n + \Phi(n, 2\cdot cap) - \Phi(n, cap) = cap + 0 - 2\cdot(cap - \frac{cap}{2}) = cap + 0 - cap = 0$
+	\end{itemize}
+
+	Как несложно заметить, в среднем операции работают за линейное время.
