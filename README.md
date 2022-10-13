@@ -11,3 +11,4 @@ Homeworks and projects from all the courses that I've attended while studying at
 7. [Methods of Parallel Programming](./parallel-programming) by Nikita [@ndkoval](https://github.com/ndkoval) Koval and Roman [@elizarov](https://github.com/elizarov) Elizarov
 8. [Introduction to Programming](./programming-intro) by Georgiy [@kgeorgiy](https://github.com/kgeorgiy) Korneev
 9. [Translation Methods](./translation-methods) by Andrew [@andrewzta](https://github.com/andrewzta) Stankevich
+10. [Mathematical Statistics](./mathstats) by [Nikita Alexeev](https://scholar.google.ru/citations?user=oGSpPIQAAAAJ)
