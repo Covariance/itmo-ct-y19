@@ -1,0 +1,9 @@
+README
+setup.py
+rickroller_package/__init__.py
+rickroller_package/rickroll.py
+rickroller_package.egg-info/PKG-INFO
+rickroller_package.egg-info/SOURCES.txt
+rickroller_package.egg-info/dependency_links.txt
+rickroller_package.egg-info/requires.txt
+rickroller_package.egg-info/top_level.txt
