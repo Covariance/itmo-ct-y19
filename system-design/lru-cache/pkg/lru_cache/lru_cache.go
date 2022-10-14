@@ -1,6 +1,11 @@
 package lrucache
 
-type LRUCache[K comparable, V any] struct {
+type LRUCache[K comparable, V any] interface {
+	Get(key K) *V
+	Put(key K, value V)
+}
+
+type LRUCacheImpl[K comparable, V any] struct {
 	capacity   int
 	head, tail *node[K, V]
 	values     map[K]*node[K, V]
@@ -12,8 +17,12 @@ type node[K, V any] struct {
 	value      V
 }
 
-func Construct[K comparable, V any](capacity int) LRUCache[K, V] {
-	return LRUCache[K, V]{
+func Construct[K comparable, V any](capacity int) *LRUCacheImpl[K, V] {
+	if capacity < 1 {
+		panic("Cannot construct LRU cache with non-positive capavity")
+	}
+
+	return &LRUCacheImpl[K, V]{
 		capacity: capacity,
 		head:     nil,
 		tail:     nil,
@@ -21,7 +30,7 @@ func Construct[K comparable, V any](capacity int) LRUCache[K, V] {
 	}
 }
 
-func (r *LRUCache[K, V]) append(key K, value V) {
+func (r *LRUCacheImpl[K, V]) append(key K, value V) {
 	node := &node[K, V]{
 		key:   key,
 		value: value,
@@ -37,7 +46,7 @@ func (r *LRUCache[K, V]) append(key K, value V) {
 	r.values[key] = node
 }
 
-func (r *LRUCache[K, V]) use(node *node[K, V]) {
+func (r *LRUCacheImpl[K, V]) use(node *node[K, V]) {
 	if node == r.tail {
 		return
 	}
@@ -54,7 +63,7 @@ func (r *LRUCache[K, V]) use(node *node[K, V]) {
 	r.tail.next = nil
 }
 
-func (r *LRUCache[K, V]) Get(key K) *V {
+func (r *LRUCacheImpl[K, V]) Get(key K) *V {
 	node, ok := r.values[key]
 	if !ok {
 		return nil
@@ -63,7 +72,7 @@ func (r *LRUCache[K, V]) Get(key K) *V {
 	return &node.value
 }
 
-func (r *LRUCache[K, V]) Put(key K, value V) {
+func (r *LRUCacheImpl[K, V]) Put(key K, value V) {
 	if _, ok := r.values[key]; ok {
 		r.values[key].value = value
 		r.use(r.values[key])
