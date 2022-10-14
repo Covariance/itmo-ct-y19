@@ -14,3 +14,5 @@ Homeworks and projects from all the courses that I've attended while studying at
 10. [Mathematical Statistics](./mathstats) by [Nikita Alexeev](https://scholar.google.ru/citations?user=oGSpPIQAAAAJ)
 11. [Data Science](./data-science) by [Sergey Muravyov](https://scholar.google.ru/citations?user=s7u9LR0AAAAJ) and [Alexey Zabashta](https://scholar.google.ru/citations?user=z4OYIa8AAAAJ)
 12. [Machine Learning](./machine-learning) by [Sergey Muravyov](https://scholar.google.ru/citations?user=s7u9LR0AAAAJ) and [Alexey Zabashta](https://scholar.google.ru/citations?user=z4OYIa8AAAAJ)
+13. [System Design](./system-design) by [Alexandr Kirakozov](https://github.com/akirakozov)
+
