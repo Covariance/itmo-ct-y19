@@ -1,3 +1,7 @@
 [submodule "functional-programming/hi-language"]
 	path = functional-programming/hi-language
 	url = git@github.com:Covariance/hi-language.git
+
+[submodule "system-design/source"]
+	path = system-design/source
+	url = git@github.com:Covariance/software-design.git
