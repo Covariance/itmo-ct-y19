@@ -1,0 +1,6 @@
+(executable
+ (public_name expression_visitor)
+ (name main)
+ (libraries core_unix.command_unix expression_visitor)
+ (preprocess
+  (pps ppx_jane)))
