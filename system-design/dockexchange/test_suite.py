@@ -1,22 +1,33 @@
+import os
 import requests
 import pytest
 import time
-from testcontainers import GenericContainer
+from testcontainers.core.container import DockerContainer
 
 
 @pytest.fixture(scope='module')
 def exchange_container():
-    # Start Docker container
-    container = GenericContainer('exchange').with_exposed_ports(5000)\
-        .with_env('FLASK_APP', 'app.py')\
-        .with_command('flask run --host 0.0.0.0 --port 5000')\
-        .start()
+    # Build and start Docker container
+    os.system('docker build -t exchange .')
+    container = DockerContainer('exchange')
+    container.with_bind_ports(5000, 5000)
+    container.with_env('FLASK_APP', 'server.py')
+    container.with_command('flask run --host 0.0.0.0 --port 5000')
+
+    container.start()
     time.sleep(2)  # Wait for container to start up
 
-    yield
+    # Add some initial shares of AAPL
+    url = f'http://{container.get_container_host_ip()}:5000/add_stock'
+    data = {'stock': 'AAPL', 'price': 100, 'quantity': 100}
+    requests.post(url, json=data)
+
+    yield container
 
     # Clean up Docker container
     container.stop()
+
+
 
 
 def test_register_user(exchange_container):
